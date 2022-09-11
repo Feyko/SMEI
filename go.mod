@@ -7,6 +7,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/google/go-github/v42 v42.0.1-0.20220131004348-e1c28bc999c5
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.3.0
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 )

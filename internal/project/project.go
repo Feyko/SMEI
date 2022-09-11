@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/pkg/errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,8 +11,9 @@ import (
 
 func Clone(targetPath string) error {
 	_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
-		URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
-		Progress: os.Stdout,
+		URL:          "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
+		Progress:     os.Stdout,
+		SingleBranch: true,
 	})
 	return err
 }
@@ -79,30 +81,39 @@ func BuildDevEditor(targetPath string, local bool) error {
 
 func Build(targetPath string, local, shipping bool) error {
 	UEPath := getUEPath(targetPath, local)
+	buildScript := filepath.Join(UEPath, "Engine", "Build", "BatchFiles", "Build.bat")
 	arguments := makeBuildArguments(targetPath, shipping)
-	cmd := exec.Command(UEPath, arguments...)
+	cmd := exec.Command(buildScript, arguments...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	return err
 }
 
 func makeBuildArguments(targetPath string, shipping bool) []string {
-	r := makeTargetArguments(shipping)
-	r = append(r, targetPathToUProjectPath(targetPath))
+	var r []string
+	r = append(r, makeTargetArguments(shipping)...)
+	r = append(r, "-Target="+targetPathToUProjectPath(targetPath))
 	r = append(r, "-WaitMutex", "-FromMsBuild")
 	return r
 }
 
 func makeTargetArguments(shipping bool) []string {
 	if shipping {
-		return []string{"FactoryGame", "Shipping"}
+		return []string{"FactoryGame", "Win64", "Shipping"}
 	}
-	return []string{"FactoryGameEditor", "Development"}
+	return []string{"FactoryGameEditor", "Win64", "Development"}
 }
 
 func Install(targetPath string, local bool) error {
 	err := Clone(targetPath)
 	if err != nil {
 		return fmt.Errorf("could not clone the project: %v", err)
+	}
+
+	err = moveWwise(targetPath)
+	if err != nil {
+		return errors.Wrap(err, "could not move the Wwise install")
 	}
 
 	err = GenerateProjectFiles(targetPath, local)
@@ -116,4 +127,10 @@ func Install(targetPath string, local bool) error {
 	}
 
 	return nil
+}
+
+func moveWwise(targetPath string) error {
+	wwisePath := filepath.Join(targetPath, "Wwise")
+	newPath := filepath.Join(targetPath, "SatisfactoryModLoader", "Plugins", "Wwise")
+	return os.Rename(wwisePath, newPath)
 }

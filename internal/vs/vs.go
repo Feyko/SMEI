@@ -16,7 +16,6 @@ func Install(local bool, path string) error {
 	if err != nil {
 		return fmt.Errorf("could not download the VS installer: %v", err)
 	}
-	fmt.Println(filename)
 
 	configString, err := makeConfigString(local, targetPath)
 	if err != nil {
@@ -30,8 +29,7 @@ func Install(local bool, path string) error {
 		return fmt.Errorf("could not create the VS installer configuration file: %v", err)
 	}
 
-	cmd := exec.Command(filename, "--in", configFilename)
-	fmt.Println(cmd.String())
+	cmd := exec.Command(filename, "--wait", "--in", configFilename)
 	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("error while running the VS installer: %v", err)
@@ -78,16 +76,16 @@ func downloadInstaller() (string, error) {
 
 func defaultConfigObject() map[string]interface{} {
 	return map[string]interface{}{
+		"productId":      "Microsoft.VisualStudio.Product.Community",
+		"channelUri":     "https://aka.ms/vs/17/release/channel",
 		"addProductLang": []string{"en-US"},
 		"add": []string{
-			//"Microsoft.VisualStudio.Workload.CoreEditor",
 			"Microsoft.VisualStudio.Workload.NativeDesktop",
 			"Microsoft.VisualStudio.Workload.NativeGame",
-			"Microsoft.NetCore.Component.SDK",
+			"Microsoft.Net.Component.4.8.SDK",
+			"Microsoft.VisualStudio.Component.Windows10SDK.20348",
 		},
-		"passive":    true,
-		"productId":  "Microsoft.VisualStudio.Product.Community",
-		"channelUri": "https://aka.ms/vs/17/release/channel",
-		"force":      true,
+		"passive": true,
+		"force":   true,
 	}
 }
