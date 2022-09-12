@@ -3,7 +3,11 @@ package project
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/mircearoata/wwise-cli/lib/wwise"
+	"github.com/mircearoata/wwise-cli/lib/wwise/client"
+	"github.com/mircearoata/wwise-cli/lib/wwise/product"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -83,6 +87,7 @@ func Build(targetPath string, local, shipping bool) error {
 	UEPath := getUEPath(targetPath, local)
 	buildScript := filepath.Join(UEPath, "Engine", "Build", "BatchFiles", "Build.bat")
 	arguments := makeBuildArguments(targetPath, shipping)
+	fmt.Println(buildScript, arguments)
 	cmd := exec.Command(buildScript, arguments...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -106,12 +111,13 @@ func makeTargetArguments(shipping bool) []string {
 }
 
 func Install(targetPath string, local bool) error {
-	err := Clone(targetPath)
+	var err error
+	err = Clone(targetPath)
 	if err != nil {
 		return fmt.Errorf("could not clone the project: %v", err)
 	}
 
-	err = moveWwise(targetPath)
+	err = InstallWWise(targetPath)
 	if err != nil {
 		return errors.Wrap(err, "could not move the Wwise install")
 	}
@@ -129,8 +135,52 @@ func Install(targetPath string, local bool) error {
 	return nil
 }
 
-func moveWwise(targetPath string) error {
-	wwisePath := filepath.Join(targetPath, "Wwise")
-	newPath := filepath.Join(targetPath, "SatisfactoryModLoader", "Plugins", "Wwise")
-	return os.Rename(wwisePath, newPath)
+func InstallWWise(targetPath string) error {
+	wwiseClient := client.NewWwiseClient()
+
+	email := viper.GetString("wwise-email")
+	if email == "" {
+		return errors.New("wwise-email was not set")
+	}
+
+	password := viper.GetString("wwise-password")
+	if password == "" {
+		return errors.New("wwise-password was not set")
+	}
+
+	err := wwiseClient.Authenticate(email, password)
+	if err != nil {
+		return errors.Wrap(err, "authentication error")
+	}
+
+	sdk := product.NewWwiseProduct(wwiseClient, "wwise")
+	sdkProductVersion, err := sdk.GetVersion("2021.1.8.7831")
+	if err != nil {
+		return errors.Wrap(err, "could not get SDK version")
+	}
+
+	sdkVersionInfo, err := sdkProductVersion.GetInfo()
+	if err != nil {
+		return errors.Wrap(err, "could not get SDK version info")
+	}
+
+	files := sdkVersionInfo.FindFilesByGroups([]product.GroupFilter{
+		{GroupID: "Packages", GroupValues: []string{"SDK"}},
+		{GroupID: "DeploymentPlatforms", GroupValues: []string{"Windows_vc140", "Windows_vc150", "Windows_vc160", "Mac", "Linux", ""}},
+	})
+
+	for _, file := range files {
+		fmt.Printf("Downloading %v from %v\n", file.Name, file.URL)
+		err = sdkProductVersion.DownloadOrCache(file)
+		if err != nil {
+			return errors.Wrapf(err, "could not download file %v", file.Name)
+		}
+	}
+
+	err = wwise.IntegrateWwiseUnreal(targetPathToUProjectPath(targetPath), "2021.1.8.2285", wwiseClient)
+	if err != nil {
+		return errors.Wrap(err, "integration failed")
+	}
+
+	return nil
 }
