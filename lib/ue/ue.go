@@ -1,10 +1,10 @@
 package ue
 
 import (
+	"SMEI/lib/gh"
 	"context"
 	"fmt"
 	"github.com/google/go-github/v42/github"
-	"golang.org/x/oauth2"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -17,11 +17,11 @@ const orgName = "SatisfactoryModdingUE"
 const repoName = "UnrealEngine"
 const installerName = "UnrealEngine-CSS-Editor-Win64.exe"
 
-func Install(githubToken, targetPath string, local bool) error {
+func Install(targetPath string, local bool) error {
 	ctx := context.Background()
-	client := makeGithubClient(ctx, githubToken)
+	client, err := gh.AuthedClient(ctx)
 
-	err := ensureGithubAccess(ctx, client, githubToken)
+	err = ensureGithubAccess(ctx, client)
 	if err != nil {
 		return fmt.Errorf("could not ensure GitHub access: %v", err)
 	}
@@ -81,7 +81,7 @@ func getLatestReleaseAssets(ctx context.Context, client *github.Client) ([]*gith
 	return assets, nil
 }
 
-func ensureGithubAccess(ctx context.Context, client *github.Client, githubToken string) error {
+func ensureGithubAccess(ctx context.Context, client *github.Client) error {
 	_, _, err := client.Repositories.Get(ctx, orgName, repoName)
 	if err != nil {
 		return fmt.Errorf("could not get the repo: %v\nNOTE: This is most likely because you haven't joined the Epic Games organization. Please refer to the docs:\nhttps://docs.ficsit.app/satisfactory-modding/latest/Development/BeginnersGuide/dependencies.html#_unreal_engine_4_custom_engine", err)
@@ -139,12 +139,6 @@ func runInstaller(installerDir, installDir string, local bool) error {
 	}
 
 	return cmd.Run()
-}
-
-func makeGithubClient(ctx context.Context, accessToken string) *github.Client {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
-	tc := oauth2.NewClient(ctx, ts)
-	return github.NewClient(tc)
 }
 
 func filterAssets(assets []*github.ReleaseAsset) ([]*github.ReleaseAsset, error) {

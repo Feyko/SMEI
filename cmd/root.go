@@ -24,15 +24,10 @@ var rootCmd = &cobra.Command{
 			log.Fatalf("Could not get the 'local' flag: %v", err)
 		}
 
-		fmt.Println("Authenticating with GitHub")
-		token, err := ghauth.GetToken()
-		if err != nil {
-			log.Fatalf("Could not authenticate with GitHub: %v", err)
-		}
-		//fmt.Println(token)
+		local := viper.GetBool("local")
 
 		fmt.Println("Installing the Unreal Engine")
-		err = ue.Install(token, target, local)
+		err = ue.Install(target, local)
 		if err != nil {
 			log.Fatalf("Could not install the Unreal Engine: %v", err)
 		}
