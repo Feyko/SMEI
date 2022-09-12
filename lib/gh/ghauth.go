@@ -1,30 +1,39 @@
 package gh
 
 import (
+	"SMEI/lib/secret"
 	"context"
 	"fmt"
 	"gg-scm.io/pkg/ghdevice"
 	"github.com/google/go-github/v42/github"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 )
+
+var accessToken secret.String
 
 func AuthedClient(ctx context.Context) (*github.Client, error) {
 	token, err := GetToken()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get an auth token")
+		return nil, errors.Wrap(err, "could not get an auth accessToken")
 	}
 
-	return makeGithubClient(ctx, token), nil
+	return makeGithubClient(ctx, string(token)), nil
 }
 
-func GetToken() (string, error) {
+func GetToken() (secret.String, error) {
+	if accessToken != "" {
+		return accessToken, nil
+	}
+
 	opt := ghdevice.Options{
-		ClientID: "0e4260b720ae65240864",
+		ClientID: viper.GetString("GH-client-id"),
 		Prompter: prompter,
 		Scopes:   []string{"repo"},
 	}
-	return ghdevice.Flow(context.Background(), opt)
+	token, err := ghdevice.Flow(context.Background(), opt)
+	return secret.String(token), err
 }
 
 func prompter(ctx context.Context, prompt ghdevice.Prompt) error {

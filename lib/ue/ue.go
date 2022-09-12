@@ -16,8 +16,9 @@ import (
 const orgName = "SatisfactoryModdingUE"
 const repoName = "UnrealEngine"
 const installerName = "UnrealEngine-CSS-Editor-Win64.exe"
+const FolderName = "Unreal Engine - CSS"
 
-func Install(targetPath string, local bool) error {
+func Install(installDir, installerDir string) error {
 	ctx := context.Background()
 	client, err := gh.AuthedClient(ctx)
 
@@ -31,9 +32,6 @@ func Install(targetPath string, local bool) error {
 		return fmt.Errorf("could not get the assets to download: %v", err)
 	}
 
-	installDir := filepath.Join(targetPath, "Unreal Engine - CSS")
-	installerDir := filepath.Join(installDir, "Installer")
-
 	err = os.MkdirAll(installerDir, 0666)
 	if err != nil {
 		return fmt.Errorf("could not create the directories for the path '%v': %v", installerDir, err)
@@ -46,7 +44,7 @@ func Install(targetPath string, local bool) error {
 		}
 	}
 
-	err = runInstaller(installerDir, installDir, local)
+	err = runInstaller(installerDir, installDir)
 	if err != nil {
 		return fmt.Errorf("could not run the Unreal Engine installer: %v", err)
 	}
@@ -127,16 +125,14 @@ func writeAssetFile(targetDir, assetName string, data []byte) error {
 	return os.WriteFile(filename, data, 0666)
 }
 
-func runInstaller(installerDir, installDir string, local bool) error {
+func runInstaller(installerDir, installDir string) error {
 	filename := filepath.Join(installerDir, installerName)
 
 	cmd := exec.Command(filename,
 		"/SILENT",
 		"/NORESTART",
+		fmt.Sprintf(`/DIR=%v`, installDir),
 	)
-	if local {
-		cmd.Args = append(cmd.Args, fmt.Sprintf(`/DIR=%v`, installDir))
-	}
 
 	return cmd.Run()
 }

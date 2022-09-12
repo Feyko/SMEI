@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func Install(local bool, path string) error {
+func Install(path string) error {
 	targetPath, err := filepath.Abs(path)
 
 	filename, err := downloadInstaller()
@@ -17,7 +17,7 @@ func Install(local bool, path string) error {
 		return fmt.Errorf("could not download the VS installer: %v", err)
 	}
 
-	configString, err := makeConfigString(local, targetPath)
+	configString, err := makeConfigString(targetPath)
 	if err != nil {
 		return fmt.Errorf("could not make the VS installer config string: %v", err)
 	}
@@ -30,6 +30,7 @@ func Install(local bool, path string) error {
 	}
 
 	cmd := exec.Command(filename, "--wait", "--in", configFilename)
+	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("error while running the VS installer: %v", err)
@@ -38,8 +39,8 @@ func Install(local bool, path string) error {
 	return nil
 }
 
-func makeConfigString(local bool, targetPath string) ([]byte, error) {
-	config, err := makeConfig(local, targetPath)
+func makeConfigString(targetPath string) ([]byte, error) {
+	config, err := makeConfig(targetPath)
 	if err != nil {
 		return nil, fmt.Errorf("could not make the config: %v", err)
 	}
@@ -51,14 +52,7 @@ func makeConfigString(local bool, targetPath string) ([]byte, error) {
 	return r, nil
 }
 
-func makeConfig(local bool, targetPath string) (map[string]interface{}, error) {
-	if local {
-		return makeConfigForLocalInstall(targetPath)
-	}
-	return defaultConfigObject(), nil
-}
-
-func makeConfigForLocalInstall(targetPath string) (map[string]interface{}, error) {
+func makeConfig(targetPath string) (map[string]interface{}, error) {
 	config := defaultConfigObject()
 	config["installPath"] = filepath.Join(targetPath, "VisualStudio")
 	return config, nil

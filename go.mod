@@ -1,6 +1,6 @@
 module SMEI
 
-go 1.17
+go 1.19
 
 require (
 	gg-scm.io/pkg/ghdevice v0.1.0

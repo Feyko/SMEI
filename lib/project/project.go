@@ -1,13 +1,13 @@
 package project
 
 import (
+	"SMEI/lib/secret"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/mircearoata/wwise-cli/lib/wwise"
 	"github.com/mircearoata/wwise-cli/lib/wwise/client"
 	"github.com/mircearoata/wwise-cli/lib/wwise/product"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,21 +20,6 @@ func Clone(targetPath string) error {
 		SingleBranch: true,
 	})
 	return err
-}
-
-func getUEPath(targetPath string, local bool) string {
-	if local {
-		return getLocalUEPath(targetPath)
-	}
-	return getGlobalUEPath()
-}
-
-func getLocalUEPath(targetPath string) string {
-	return filepath.Join(targetPath, "Unreal Engine - CSS")
-}
-
-func getGlobalUEPath() string {
-	return filepath.Join(os.ExpandEnv("$ProgramW6432"), "Unreal Engine - CSS")
 }
 
 func targetPathToUProjectPath(targetPath string) string {
@@ -51,9 +36,7 @@ func makeUBTArguments(targetPath string) []string {
 	}
 }
 
-func GenerateProjectFiles(targetPath string, local bool) error {
-	UEPath := getUEPath(targetPath, local)
-
+func GenerateProjectFiles(targetPath, UEPath string) error {
 	UBTPath := filepath.Join(UEPath, "Engine", "Binaries", "DotNET", "UnrealBuildTool.exe")
 	arguments := makeUBTArguments(targetPath)
 	cmd := exec.Command(UBTPath, arguments...)
@@ -66,25 +49,24 @@ func GenerateProjectFiles(targetPath string, local bool) error {
 	return nil
 }
 
-func BuildAll(targetPath string, local bool) error {
-	err := BuildDevEditor(targetPath, local)
+func BuildAll(targetPath, UEPath string) error {
+	err := BuildDevEditor(targetPath, UEPath)
 	if err != nil {
 		return err
 	}
-	err = BuildShipping(targetPath, local)
+	err = BuildShipping(targetPath, UEPath)
 	return err
 }
 
-func BuildShipping(targetPath string, local bool) error {
-	return Build(targetPath, local, true)
+func BuildShipping(targetPath, UEPath string) error {
+	return Build(targetPath, UEPath, true)
 }
 
-func BuildDevEditor(targetPath string, local bool) error {
-	return Build(targetPath, local, false)
+func BuildDevEditor(targetPath, UEPath string) error {
+	return Build(targetPath, UEPath, false)
 }
 
-func Build(targetPath string, local, shipping bool) error {
-	UEPath := getUEPath(targetPath, local)
+func Build(targetPath, UEPath string, shipping bool) error {
 	buildScript := filepath.Join(UEPath, "Engine", "Build", "BatchFiles", "Build.bat")
 	arguments := makeBuildArguments(targetPath, shipping)
 	fmt.Println(buildScript, arguments)
@@ -110,24 +92,24 @@ func makeTargetArguments(shipping bool) []string {
 	return []string{"FactoryGameEditor", "Win64", "Development"}
 }
 
-func Install(targetPath string, local bool) error {
+func Install(targetPath string, UEPath string, auth WwiseAuth) error {
 	var err error
 	err = Clone(targetPath)
 	if err != nil {
 		return fmt.Errorf("could not clone the project: %v", err)
 	}
 
-	err = InstallWWise(targetPath)
+	err = InstallWWise(targetPath, auth)
 	if err != nil {
 		return errors.Wrap(err, "could not move the Wwise install")
 	}
 
-	err = GenerateProjectFiles(targetPath, local)
+	err = GenerateProjectFiles(targetPath, UEPath)
 	if err != nil {
 		return fmt.Errorf("could not generate the VS project files: %v", err)
 	}
 
-	err = BuildAll(targetPath, local)
+	err = BuildAll(targetPath, UEPath)
 	if err != nil {
 		return fmt.Errorf("could not build the project: %v", err)
 	}
@@ -135,20 +117,15 @@ func Install(targetPath string, local bool) error {
 	return nil
 }
 
-func InstallWWise(targetPath string) error {
+type WwiseAuth struct {
+	Email    secret.String
+	Password secret.String
+}
+
+func InstallWWise(targetPath string, auth WwiseAuth) error {
 	wwiseClient := client.NewWwiseClient()
 
-	email := viper.GetString("wwise-email")
-	if email == "" {
-		return errors.New("wwise-email was not set")
-	}
-
-	password := viper.GetString("wwise-password")
-	if password == "" {
-		return errors.New("wwise-password was not set")
-	}
-
-	err := wwiseClient.Authenticate(email, password)
+	err := wwiseClient.Authenticate(string(auth.Email), string(auth.Password))
 	if err != nil {
 		return errors.Wrap(err, "authentication error")
 	}
