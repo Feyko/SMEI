@@ -3,7 +3,6 @@ package config
 import (
 	"SMEI/lib/crypt"
 	"SMEI/lib/secret"
-	"SMEI/lib/ue"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -15,10 +14,11 @@ import (
 var ConfigDir string
 var CacheDir string
 
+const UEFolderName = "Unreal Engine - CSS"
+
 var password secret.String
 
 const passCheck = "SMEI"
-
 const MinPasswordLength = 8
 
 const (
@@ -48,6 +48,12 @@ func Setup() {
 	viper.AddConfigPath(ConfigDir)
 	err := viper.ReadInConfig()
 	_, notFound := err.(viper.ConfigFileNotFoundError)
+	if notFound {
+		err = viper.SafeWriteConfig()
+		if err != nil {
+			log.Fatalf("Could not write the default config: %v", err)
+		}
+	}
 	if err != nil && !notFound {
 		log.Fatalf("Could not search for configuration files: %v", err)
 	}
@@ -71,8 +77,8 @@ func setupCacheDir() {
 
 func setupDefaults() {
 	viper.SetDefault(GHClientID_key, "0e4260b720ae65240864")
-	viper.SetDefault(UEInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), ue.FolderName))
-	viper.SetDefault(PreserveUEInstaller_key, false)
+	viper.SetDefault(UEInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), UEFolderName))
+	viper.SetDefault(PreserveUEInstaller_key, true)
 	viper.SetDefault(VSInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), "Microsoft Visual Studio", "2022", "Community"))
 	viper.SetDefault(WwiseCacheDir_key, filepath.Join(CacheDir, "Wwise"))
 }
@@ -89,6 +95,7 @@ func SetPassword(newPassword secret.String) error {
 		}
 
 		viper.Set(PassCheck_key, encrypted)
+		err = viper.WriteConfig()
 	}
 
 	decrypted, err := crypt.Decrypt(string(newPassword), viper.GetString(PassCheck_key))

@@ -2,6 +2,7 @@ package install
 
 import (
 	"SMEI/config"
+	"SMEI/lib/elevate"
 	"SMEI/lib/project"
 	"SMEI/lib/secret"
 	"SMEI/lib/ue"
@@ -36,6 +37,8 @@ var Cmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install a modding environment",
 	Run: func(cmd *cobra.Command, args []string) {
+		elevate.EnsureElevatedFinal()
+
 		config.Setup()
 
 		err := viper.BindPFlags(cmd.Flags())
@@ -48,23 +51,23 @@ var Cmd = &cobra.Command{
 
 		UEInstallDir := viper.GetString(config.UEInstallPath_key)
 		if local {
-			UEInstallDir = filepath.Join(target, ue.FolderName)
+			UEInstallDir = filepath.Join(target, config.UEFolderName)
 		}
-		//installerDir := os.TempDir()
-		//if viper.GetBool(config.PreserveUEInstaller_key) {
-		//	installerDir = filepath.Join(config.ConfigDir, "UE-Installer")
-		//}
-		//
-		//fmt.Println("Installing the Unreal Engine")
-		//err = ue.Install(UEInstallDir, installerDir)
-		//if err != nil {
-		//	log.Fatalf("Could not install the Unreal Engine: %v", err)
-		//}
+		installerDir := os.TempDir()
+		if viper.GetBool(config.PreserveUEInstaller_key) {
+			installerDir = filepath.Join(config.ConfigDir, ue.CacheFolder)
+		}
+
+		fmt.Println("Installing the Unreal Engine")
+		err = ue.Install(UEInstallDir, installerDir)
+		if err != nil {
+			log.Fatalf("Could not install the Unreal Engine: %v", err)
+		}
 		//
 		//fmt.Println("Installing Visual Studio...")
 		//VSInstallPath := viper.GetString(config.VSInstallPath_key)
 		//if local {
-		//	VSInstallPath = filepath.Join(config.ConfigDir, "Visual Studio 2022 - Community")
+		//	VSInstallPath = filepath.Join(target, "VS22")
 		//}
 		//err = vs.Install(VSInstallPath)
 		//if err != nil {
@@ -145,13 +148,14 @@ func askForWwiseAuth() error {
 	fmt.Print("SMEI needs credentials to your Audiokinetic/Wwise account. " +
 		"If you do not already have one, please navigate to https://www.audiokinetic.com/ and register.\n" +
 		"Please input your account email\n")
-	var email string
-	_, err := fmt.Scanln(&email)
+	//var email string
+	//_, err := fmt.Scanln(&email)
+	email, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return errors.Wrap(err, "could not read the input")
 	}
 	fmt.Println("Please input your account password: ")
-	return wwisePasswordLoop(email)
+	return wwisePasswordLoop(string(email))
 }
 
 func wwisePasswordLoop(email string) error {

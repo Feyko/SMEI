@@ -1,11 +1,14 @@
 package ue
 
 import (
+	"SMEI/config"
 	"SMEI/lib/gh"
 	"context"
 	"fmt"
 	"github.com/google/go-github/v42/github"
+	"github.com/pkg/errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -16,9 +19,40 @@ import (
 const orgName = "SatisfactoryModdingUE"
 const repoName = "UnrealEngine"
 const installerName = "UnrealEngine-CSS-Editor-Win64.exe"
-const FolderName = "Unreal Engine - CSS"
+const CacheFolder = "UE-Installer"
 
 func Install(installDir, installerDir string) error {
+	cached, err := installerIsCached()
+	if err != nil {
+		return errors.Wrap(err, "could not check if the installer is cached")
+	}
+	if !cached {
+		err = downloadInstaller(installDir)
+		if err != nil {
+			return errors.Wrap(err, "could not download the installer")
+		}
+	}
+
+	err = runInstaller(installerDir, installDir)
+	if err != nil {
+		return fmt.Errorf("could not run the Unreal Engine installer: %v", err)
+	}
+
+	return nil
+}
+
+func installerIsCached() (bool, error) {
+	_, err := os.Stat(filepath.Join(config.ConfigDir, CacheFolder, installerName))
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func downloadInstaller(path string) error {
 	ctx := context.Background()
 	client, err := gh.AuthedClient(ctx)
 
@@ -32,23 +66,17 @@ func Install(installDir, installerDir string) error {
 		return fmt.Errorf("could not get the assets to download: %v", err)
 	}
 
-	err = os.MkdirAll(installerDir, 0666)
+	err = os.MkdirAll(path, 0666)
 	if err != nil {
-		return fmt.Errorf("could not create the directories for the path '%v': %v", installerDir, err)
+		return fmt.Errorf("could not create the directories for the path '%v': %v", path, err)
 	}
 
 	for _, asset := range assetsToDownload {
-		err := downloadAsset(ctx, client, asset, installerDir)
+		err := downloadAsset(ctx, client, asset, path)
 		if err != nil {
 			return fmt.Errorf("could not download asset '%v': %v", asset.GetName(), err)
 		}
 	}
-
-	err = runInstaller(installerDir, installDir)
-	if err != nil {
-		return fmt.Errorf("could not run the Unreal Engine installer: %v", err)
-	}
-
 	return nil
 }
 
@@ -126,6 +154,23 @@ func writeAssetFile(targetDir, assetName string, data []byte) error {
 }
 
 func runInstaller(installerDir, installDir string) error {
+	reinstall, err := isReinstall(installDir)
+	if err != nil {
+		return errors.Wrap(err, "could not check if this is a reinstall")
+	}
+	if reinstall {
+		uninstallString, err := disableUninstaller()
+		if err != nil {
+			return errors.Wrap(err, "could not disable the uninstaller")
+		}
+		defer func(uninstallString string) {
+			err := reenableUninstall(uninstallString)
+			if err != nil {
+				log.Panicf("COULD NOT REENABLE UE UNINSTALLER. PLEASE CONTACT FEYKO ON THE MODDING DISCORD\n%v\n", err)
+			}
+		}(uninstallString)
+	}
+
 	filename := filepath.Join(installerDir, installerName)
 
 	cmd := exec.Command(filename,

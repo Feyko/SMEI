@@ -4,26 +4,28 @@
 package test
 
 import (
-	"SMEI/lib/crypt"
+	"SMEI/lib/elevate"
 	"fmt"
 	"github.com/spf13/cobra"
 	"log"
+	"os"
+	"time"
 )
 
 var Cmd = &cobra.Command{
 	Use:   "test",
 	Short: "Testing the things",
 	Run: func(cmd *cobra.Command, args []string) {
-		password := "ayoo"
-		secure, err := crypt.Encrypt(password, "heyadgffgddfhhdfhfdhfdhdfhdfdfhdfhdfhhdfdhfhdfhdfhdfhfdhdf")
-		if err != nil {
-			log.Fatalf("Encryption error: %v", err)
+		fmt.Println("ayop")
+		fmt.Println(os.Args[2])
+		if elevate.IsElevated() {
+			fmt.Println("sleeping")
+			fmt.Println("\a")
+			time.Sleep(time.Hour)
 		}
-		fmt.Println(secure)
-		unsecure, err := crypt.Decrypt(password, secure)
+		err := elevate.RerunElevated()
 		if err != nil {
-			log.Fatalf("Decryption error: %v", err)
+			log.Fatalf("Could not elevate: %v", err)
 		}
-		fmt.Println(unsecure)
 	},
 }

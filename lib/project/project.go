@@ -15,9 +15,8 @@ import (
 
 func Clone(targetPath string) error {
 	_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
-		URL:          "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
-		Progress:     os.Stdout,
-		SingleBranch: true,
+		URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
+		Progress: os.Stdout,
 	})
 	return err
 }

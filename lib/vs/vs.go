@@ -3,13 +3,16 @@ package vs
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cavaliergopher/grab/v3"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 )
 
 func Install(path string) error {
+	fmt.Println(path)
+
 	targetPath, err := filepath.Abs(path)
 
 	filename, err := downloadInstaller()
@@ -30,6 +33,7 @@ func Install(path string) error {
 	}
 
 	cmd := exec.Command(filename, "--wait", "--in", configFilename)
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
@@ -60,12 +64,24 @@ func makeConfig(targetPath string) (map[string]interface{}, error) {
 
 func downloadInstaller() (string, error) {
 	link := "https://aka.ms/vs/17/release/vs_community.exe"
-	temp := os.TempDir()
-	resp, err := grab.Get(temp, link)
+	filename := filepath.Join(os.TempDir(), "vs_Community.exe")
+	resp, err := http.Get(link)
 	if err != nil {
 		return "", fmt.Errorf("could not get the installer file: %v", err)
 	}
-	return resp.Filename, nil
+	defer resp.Body.Close()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("could not download the installer file: %v", err)
+	}
+
+	err = os.WriteFile(filename, b, 0644)
+	if err != nil {
+		return "", fmt.Errorf("could not save the installer file: %v", err)
+	}
+
+	return filename, nil
 }
 
 func defaultConfigObject() map[string]interface{} {
