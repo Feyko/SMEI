@@ -43,10 +43,12 @@ func RerunElevated() error {
 		return errors.Wrap(err, "Could not get the executable")
 	}
 	cmdArgs := fmt.Sprintf(
-		"Start-Process -Wait -Verb RunAs -WindowStyle Minimized -FilePath '%v' -ArgumentList '%v'",
+		`Start-Process -Wait -Verb RunAs -FilePath '%v' -ArgumentList '%v'`,
 		self, strings.Join(os.Args[1:], " "))
 	command := exec.Command("powershell", "-Command", cmdArgs)
+	fmt.Println(command)
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
+
 	return command.Run()
 }

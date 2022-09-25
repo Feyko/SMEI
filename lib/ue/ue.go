@@ -8,7 +8,6 @@ import (
 	"github.com/google/go-github/v42/github"
 	"github.com/pkg/errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -154,21 +153,24 @@ func writeAssetFile(targetDir, assetName string, data []byte) error {
 }
 
 func runInstaller(installerDir, installDir string) error {
-	reinstall, err := isReinstall(installDir)
+	reinstall := false
+	other, err := hasOtherInstall()
 	if err != nil {
-		return errors.Wrap(err, "could not check if this is a reinstall")
+		return errors.Wrap(err, "could not check if an install already exists")
 	}
-	if reinstall {
-		uninstallString, err := disableUninstaller()
+
+	if other {
+		reinstall, err = isReinstall(installDir)
+		if err != nil {
+			return errors.Wrap(err, "could not check if this is a reinstall")
+		}
+	}
+
+	if !reinstall {
+		err = disableUninstaller()
 		if err != nil {
 			return errors.Wrap(err, "could not disable the uninstaller")
 		}
-		defer func(uninstallString string) {
-			err := reenableUninstall(uninstallString)
-			if err != nil {
-				log.Panicf("COULD NOT REENABLE UE UNINSTALLER. PLEASE CONTACT FEYKO ON THE MODDING DISCORD\n%v\n", err)
-			}
-		}(uninstallString)
 	}
 
 	filename := filepath.Join(installerDir, installerName)
@@ -179,7 +181,14 @@ func runInstaller(installerDir, installDir string) error {
 		fmt.Sprintf(`/DIR=%v`, installDir),
 	)
 
-	return cmd.Run()
+	err = cmd.Run()
+	//fmt.Println("waiting")
+	//c := make(chan os.Signal, 1)
+	//signal.Notify(c, os.Interrupt)
+	//<-c
+	//fmt.Println("done")
+
+	return err
 }
 
 func filterAssets(assets []*github.ReleaseAsset) ([]*github.ReleaseAsset, error) {

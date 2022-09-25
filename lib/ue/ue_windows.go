@@ -25,12 +25,23 @@ func isReinstall(installPath string) (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "could not make install path absolute")
 	}
-	current, err = filepath.Abs(installPath)
+	current, err = filepath.Abs(current)
 	if err != nil {
 		return false, errors.Wrap(err, "could not make current path absolute")
 	}
 
 	return current == installPath, nil
+}
+
+func hasOtherInstall() (bool, error) {
+	_, err := openSetupKey(registry.QUERY_VALUE)
+	if errors.Is(err, registry.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, errors.Wrap(err, "could not open the UE setup registry key")
+	}
+	return true, nil
 }
 
 func openSetupKey(access uint32) (registry.Key, error) {
@@ -46,23 +57,28 @@ func openSetupKey(access uint32) (registry.Key, error) {
 	return key, err
 }
 
-func disableUninstaller() (string, error) {
+func disableUninstaller() error {
+	key, err := openSetupKey(registry.ALL_ACCESS)
+	if err != nil {
+		return errors.Wrap(err, "could not open the UE setup registry key")
+	}
+	err = key.SetStringValue("UninstallString", "")
+	if err != nil {
+		return errors.Wrap(err, "could not empty the uninstall string")
+	}
 
-	fmt.Println("Disabling uninstaller")
+	return nil
+}
+
+func getUninstallString() (string, error) {
 	key, err := openSetupKey(registry.ALL_ACCESS)
 	if err != nil {
 		return "", errors.Wrap(err, "could not open the UE setup registry key")
 	}
 	uninstallString, _, err := key.GetStringValue("UninstallString")
 	if err != nil {
-		return "", errors.Wrap(err, "could not get the uninstall string")
+		return "", errors.Wrap(err, "could not get the registry value")
 	}
-
-	err = key.SetStringValue("Uninstall", "")
-	if err != nil {
-		return "", errors.Wrap(err, "could not empty the uninstall string")
-	}
-
 	return uninstallString, nil
 }
 
@@ -72,7 +88,7 @@ func reenableUninstall(uninstallString string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not open the UE setup registry key")
 	}
-	err = key.SetStringValue("Uninstall", uninstallString)
+	err = key.SetStringValue("UninstallString", uninstallString)
 	if err != nil {
 		return errors.Wrap(err, "could not empty the uninstall string")
 	}
