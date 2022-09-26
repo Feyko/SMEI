@@ -3,9 +3,9 @@ package install
 import (
 	"SMEI/config"
 	"SMEI/lib/elevate"
-	"SMEI/lib/project"
+	"SMEI/lib/env/project"
+	"SMEI/lib/env/ue"
 	"SMEI/lib/secret"
-	"SMEI/lib/ue"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/mircearoata/wwise-cli/lib/wwise/client"

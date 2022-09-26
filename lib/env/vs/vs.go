@@ -10,6 +10,10 @@ import (
 	"path/filepath"
 )
 
+type Info struct {
+	Components []string
+}
+
 func Install(path string) error {
 	fmt.Println(path)
 

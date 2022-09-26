@@ -7,7 +7,6 @@ import (
 	"SMEI/lib/elevate"
 	"fmt"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 	"time"
 )
@@ -23,9 +22,6 @@ var Cmd = &cobra.Command{
 			fmt.Println("\a")
 			time.Sleep(time.Hour)
 		}
-		err := elevate.RerunElevated()
-		if err != nil {
-			log.Fatalf("Could not elevate: %v", err)
-		}
+		elevate.RerunElevatedFinal()
 	},
 }

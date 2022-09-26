@@ -1,7 +1,7 @@
 package wwise
 
 import (
-	"SMEI/cmdhelp"
+	"SMEI/lib/cmdhelp"
 	"github.com/spf13/cobra"
 )
 

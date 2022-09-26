@@ -2,7 +2,7 @@ package ue
 
 import (
 	"SMEI/config"
-	"SMEI/lib/gh"
+	"SMEI/lib/env/gh"
 	"context"
 	"fmt"
 	"github.com/google/go-github/v42/github"
@@ -19,6 +19,11 @@ const orgName = "SatisfactoryModdingUE"
 const repoName = "UnrealEngine"
 const installerName = "UnrealEngine-CSS-Editor-Win64.exe"
 const CacheFolder = "UE-Installer"
+
+type Info struct {
+	Version  string
+	Location string
+}
 
 func Install(installDir, installerDir string) error {
 	cached, err := installerIsCached()

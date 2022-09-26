@@ -4,7 +4,7 @@ import (
 	configCmd "SMEI/cmd/config"
 	"SMEI/cmd/install"
 	"SMEI/cmd/test"
-	"SMEI/cmdhelp"
+	"SMEI/lib/cmdhelp"
 	"github.com/spf13/cobra"
 )
 

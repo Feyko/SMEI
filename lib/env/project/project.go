@@ -13,6 +13,17 @@ import (
 	"path/filepath"
 )
 
+type Info struct {
+	Location string
+	Git      *GitInfo
+}
+
+type GitInfo struct {
+	Branch   string
+	Commit   string
+	UpToDate bool
+}
+
 func Clone(targetPath string) error {
 	_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
 		URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",

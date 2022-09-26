@@ -2,7 +2,7 @@ package config
 
 import (
 	"SMEI/cmd/config/wwise"
-	"SMEI/cmdhelp"
+	"SMEI/lib/cmdhelp"
 	"github.com/spf13/cobra"
 )
 
