@@ -37,7 +37,7 @@ func init() {
 	setupCacheDir()
 }
 
-func Setup() {
+func Setup() error {
 	viper.SetEnvPrefix("SMEI")
 	viper.AutomaticEnv()
 
@@ -49,14 +49,19 @@ func Setup() {
 	err := viper.ReadInConfig()
 	_, notFound := err.(viper.ConfigFileNotFoundError)
 	if notFound {
+		err = os.MkdirAll(ConfigDir, 0744)
+		if err != nil {
+			return errors.Wrap(err, "could not create config directory")
+		}
 		err = viper.SafeWriteConfig()
 		if err != nil {
-			log.Fatalf("Could not write the default config: %v", err)
+			return errors.Wrap(err, "could not write the default config")
 		}
 	}
 	if err != nil && !notFound {
-		log.Fatalf("Could not search for configuration files: %v", err)
+		return errors.Wrap(err, "could not search for configuration files")
 	}
+	return nil
 }
 
 func setupConfigDir() {

@@ -5,6 +5,7 @@ import (
 	"SMEI/lib/elevate"
 	"SMEI/lib/env/project"
 	"SMEI/lib/env/ue"
+	"SMEI/lib/env/vs"
 	"SMEI/lib/secret"
 	"fmt"
 	"github.com/fatih/color"
@@ -15,6 +16,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
 )
 
@@ -23,6 +25,7 @@ func init() {
 
 	flags.BoolP("local", "l", false, "Install dependencies in the target directory instead of globally")
 	flags.StringP("target", "t", "", "Where to install the project")
+	flags.BoolP("nonelevated", "e", false, "Choose whether to elevate the process or not. UE installation requires privileges")
 
 	requiredFlags := []string{"target"}
 	for _, flag := range requiredFlags {
@@ -37,13 +40,27 @@ var Cmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install a modding environment",
 	Run: func(cmd *cobra.Command, args []string) {
-		elevate.EnsureElevatedFinal()
+		defer func() {
+			v := recover()
+			if v != nil {
+				fmt.Println(v)
+			}
+			fmt.Println("Use ctrl+C to close this window")
+			c := make(chan os.Signal)
+			signal.Notify(c, os.Interrupt)
+			<-c
+		}()
 
-		config.Setup()
+		err := config.Setup()
 
-		err := viper.BindPFlags(cmd.Flags())
+		err = viper.BindPFlags(cmd.Flags())
 		if err != nil {
-			log.Fatalf("Could not bind the CLI flags to the configuration system: %v", err)
+			log.Panicf("Could not bind the CLI flags to the configuration system: %v", err)
+		}
+
+		doElevate := !viper.GetBool("nonelevated")
+		if doElevate {
+			elevate.EnsureElevatedFinal()
 		}
 
 		local := viper.GetBool("local")
@@ -61,42 +78,42 @@ var Cmd = &cobra.Command{
 		fmt.Println("Installing the Unreal Engine")
 		err = ue.Install(UEInstallDir, installerDir)
 		if err != nil {
-			log.Fatalf("Could not install the Unreal Engine: %v", err)
+			log.Panicf("Could not install the Unreal Engine: %v", err)
 		}
-		//
-		//fmt.Println("Installing Visual Studio...")
-		//VSInstallPath := viper.GetString(config.VSInstallPath_key)
-		//if local {
-		//	VSInstallPath = filepath.Join(target, "VS22")
-		//}
-		//err = vs.Install(VSInstallPath)
-		//if err != nil {
-		//	log.Fatalf("Could not install Visual Studio: %v", err)
-		//}
+
+		fmt.Println("Installing Visual Studio...")
+		VSInstallPath := viper.GetString(config.VSInstallPath_key)
+		if local {
+			VSInstallPath = filepath.Join(target, "VS22")
+		}
+		err = vs.Install(VSInstallPath)
+		if err != nil {
+			log.Panicf("Could not install Visual Studio: %v", err)
+		}
 
 		fmt.Println("Installing modding project...")
 		if !config.HasPassword() {
 			err = askForPassword()
 			if err != nil {
-				log.Fatalf("Could not get a password: %v", err)
+				log.Panicf("Could not get a password: %v", err)
 			}
 		}
 
 		if !viper.IsSet(config.WwiseEmail_key) {
 			err = askForWwiseAuth()
 			if err != nil {
-				log.Fatalf("Could not log in with Wwise: %v", err)
+				log.Panicf("Could not log in with Wwise: %v", err)
 			}
 		}
 
 		wwiseEmail, err := config.GetSecretString(config.WwiseEmail_key)
 		if err != nil {
-			log.Fatalf("Could not get the Wwise email: %v", err)
+			log.Panicf("Could not get the Wwise email: %v", err)
 		}
 
 		wwisePassword, err := config.GetSecretString(config.WwisePassword_key)
 		if err != nil {
-			log.Fatalf("Could not get the Wwise password: %v", err)
+			log.Panicf("Could not get the Wwise password: %v", err)
 		}
 
 		err = project.Install(target, UEInstallDir, project.WwiseAuth{
@@ -105,7 +122,7 @@ var Cmd = &cobra.Command{
 		})
 
 		if err != nil {
-			log.Fatalf("Could not install the project: %v", err)
+			log.Panicf("Could not install the project: %v", err)
 		}
 	},
 }

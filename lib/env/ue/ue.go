@@ -31,7 +31,7 @@ func Install(installDir, installerDir string) error {
 		return errors.Wrap(err, "could not check if the installer is cached")
 	}
 	if !cached {
-		err = downloadInstaller(installDir)
+		err = downloadInstaller(installerDir)
 		if err != nil {
 			return errors.Wrap(err, "could not download the installer")
 		}
@@ -187,11 +187,6 @@ func runInstaller(installerDir, installDir string) error {
 	)
 
 	err = cmd.Run()
-	//fmt.Println("waiting")
-	//c := make(chan os.Signal, 1)
-	//signal.Notify(c, os.Interrupt)
-	//<-c
-	//fmt.Println("done")
 
 	return err
 }
