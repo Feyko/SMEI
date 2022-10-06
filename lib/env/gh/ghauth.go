@@ -1,6 +1,7 @@
 package gh
 
 import (
+	"SMEI/config"
 	"SMEI/lib/secret"
 	"context"
 	"fmt"
@@ -27,13 +28,30 @@ func GetToken() (secret.String, error) {
 		return accessToken, nil
 	}
 
+	token, err := config.GetSecretString(config.GHToken_key)
+	if err != nil {
+		return "", errors.Wrap(err, "error getting the gh token")
+	}
+
+	if token != "" {
+		err = saveToken(token)
+		if err != nil {
+			return "", errors.Wrap(err, "error saving token")
+		}
+	}
+
 	opt := ghdevice.Options{
 		ClientID: viper.GetString("GH-client-id"),
 		Prompter: prompter,
 		Scopes:   []string{"repo"},
 	}
-	token, err := ghdevice.Flow(context.Background(), opt)
-	return secret.String(token), err
+	newToken, err := ghdevice.Flow(context.Background(), opt)
+	token = secret.String(newToken)
+	err = saveToken(token)
+	if err != nil {
+		return "", errors.Wrap(err, "error saving token")
+	}
+	return accessToken, err
 }
 
 func prompter(ctx context.Context, prompt ghdevice.Prompt) error {
@@ -45,4 +63,9 @@ func makeGithubClient(ctx context.Context, accessToken string) *github.Client {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
 	tc := oauth2.NewClient(ctx, ts)
 	return github.NewClient(tc)
+}
+
+func saveToken(token secret.String) error {
+	accessToken = token
+	return config.SetSecretString(config.GHToken_key, token)
 }

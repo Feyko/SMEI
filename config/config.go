@@ -23,6 +23,7 @@ const MinPasswordLength = 8
 
 const (
 	GHClientID_key          = "gh-client-id"
+	GHToken_key             = "gh-token"
 	UEInstallPath_key       = "ue-install-path"
 	PreserveUEInstaller_key = "ue-preserve-installer"
 	VSInstallPath_key       = "vs-install-path"
