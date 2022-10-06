@@ -59,6 +59,9 @@ func installerIsCached() (bool, error) {
 func downloadInstaller(path string) error {
 	ctx := context.Background()
 	client, err := gh.AuthedClient(ctx)
+	if err != nil {
+		return errors.Wrap(err, "error making a GitHub auth client")
+	}
 
 	err = ensureGithubAccess(ctx, client)
 	if err != nil {

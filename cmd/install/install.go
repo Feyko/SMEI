@@ -3,6 +3,7 @@ package install
 import (
 	"SMEI/config"
 	"SMEI/lib/elevate"
+	"SMEI/lib/env/gh"
 	"SMEI/lib/env/project"
 	"SMEI/lib/env/ue"
 	"SMEI/lib/env/vs"
@@ -63,6 +64,35 @@ var Cmd = &cobra.Command{
 			elevate.EnsureElevatedFinal()
 		}
 
+		if !config.HasPassword() {
+			err = askForPassword()
+			if err != nil {
+				log.Panicf("Could not get a password: %v", err)
+			}
+		}
+
+		if !viper.IsSet(config.WwiseEmail_key) {
+			err = askForWwiseAuth()
+			if err != nil {
+				log.Panicf("Could not log in with Wwise: %v", err)
+			}
+		}
+
+		wwiseEmail, err := config.GetSecretString(config.WwiseEmail_key)
+		if err != nil {
+			log.Panicf("Could not get the Wwise email: %v", err)
+		}
+
+		wwisePassword, err := config.GetSecretString(config.WwisePassword_key)
+		if err != nil {
+			log.Panicf("Could not get the Wwise password: %v", err)
+		}
+
+		_, err = gh.GetToken()
+		if err != nil {
+			log.Panicf("Could not get a GitHub access token: %v", err)
+		}
+
 		local := viper.GetBool("local")
 		target := viper.GetString("target")
 
@@ -92,29 +122,6 @@ var Cmd = &cobra.Command{
 		}
 
 		fmt.Println("Installing modding project...")
-		if !config.HasPassword() {
-			err = askForPassword()
-			if err != nil {
-				log.Panicf("Could not get a password: %v", err)
-			}
-		}
-
-		if !viper.IsSet(config.WwiseEmail_key) {
-			err = askForWwiseAuth()
-			if err != nil {
-				log.Panicf("Could not log in with Wwise: %v", err)
-			}
-		}
-
-		wwiseEmail, err := config.GetSecretString(config.WwiseEmail_key)
-		if err != nil {
-			log.Panicf("Could not get the Wwise email: %v", err)
-		}
-
-		wwisePassword, err := config.GetSecretString(config.WwisePassword_key)
-		if err != nil {
-			log.Panicf("Could not get the Wwise password: %v", err)
-		}
 
 		err = project.Install(target, UEInstallDir, project.WwiseAuth{
 			Email:    wwiseEmail,
@@ -132,7 +139,7 @@ func askForPassword() error {
 		fmt.Println("Please input your password:")
 	} else {
 		warning := color.New(color.FgRed, color.Bold).SprintFunc()
-		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information. %s. Input your password:\n",
+		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s. Input your password:\n",
 			warning("Please note that there is no way to retrieve this password"))
 	}
 
