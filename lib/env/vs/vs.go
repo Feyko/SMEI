@@ -40,7 +40,7 @@ func Install(path string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
-	if err != nil {
+	if err != nil && !isRebootExitCode(err) {
 		return fmt.Errorf("error while running the VS installer: %v", err)
 	}
 
@@ -99,7 +99,13 @@ func defaultConfigObject() map[string]interface{} {
 			"Microsoft.Net.Component.4.8.SDK",
 			"Microsoft.VisualStudio.Component.Windows10SDK.20348",
 		},
-		"passive": true,
-		"force":   true,
+		"passive":   true,
+		"force":     true,
+		"norestart": true,
 	}
+}
+
+func isRebootExitCode(err error) bool {
+	code, ok := err.(*exec.ExitError)
+	return !ok || code.ExitCode() == 3010
 }
