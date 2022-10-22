@@ -13,6 +13,9 @@ var infoPath = fmt.Sprintf(`Software\Microsoft\Windows\CurrentVersion\Uninstall\
 
 func isReinstall(installPath string) (bool, error) {
 	key, err := openSetupKey(registry.QUERY_VALUE)
+	if errors.Is(err, registry.ErrNotExist) {
+		return false, nil
+	}
 	if err != nil {
 		return false, errors.Wrap(err, "could not open the UE setup registry key")
 	}

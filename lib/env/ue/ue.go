@@ -174,7 +174,7 @@ func runInstaller(installerDir, installDir string) error {
 		}
 	}
 
-	if !reinstall {
+	if other && !reinstall {
 		err = disableUninstaller()
 		if err != nil {
 			return errors.Wrap(err, "could not disable the uninstaller")
