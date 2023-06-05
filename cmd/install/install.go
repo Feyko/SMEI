@@ -135,7 +135,7 @@ var Cmd = &cobra.Command{
 
 func askForPassword() error {
 	if config.HasLoggedInBefore() {
-		fmt.Println("If you forgot your password, delete the `pass-check` line from config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
+		fmt.Println("If you forgot your password, delete config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
 	} else {
 		warning := color.New(color.FgRed, color.Bold).SprintFunc()
 		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
@@ -149,7 +149,7 @@ func passwordLoop() error {
 	password := []byte{}
 	err := error(nil)
 	if viper.GetBool(config.DeveloperMode_key) {
-		fmt.Println("SMEI developer mode enabled. Using default password for testing.")
+		fmt.Println("SMEI developer mode enabled. Using default SMEI password for testing.")
 		password = []byte("FrenchFeyko")
 	} else {
 		password, err = terminal.ReadPassword(int(os.Stdin.Fd()))

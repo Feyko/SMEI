@@ -144,7 +144,7 @@ func InstallWWise(targetPath string, auth WwiseAuth) error {
 
 	err := wwiseClient.Authenticate(string(auth.Email), string(auth.Password))
 	if err != nil {
-		return errors.Wrap(err, "authentication error")
+		return errors.Wrap(err, "authentication error. check your Wwise credentials")
 	}
 
 	sdk := product.NewWwiseProduct(wwiseClient, "wwise")
