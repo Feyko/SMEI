@@ -26,6 +26,7 @@ const (
 	GHToken_key             = "gh-token"
 	UEInstallPath_key       = "ue-install-path"
 	PreserveUEInstaller_key = "ue-preserve-installer"
+	DeveloperMode_key       = "smei-developer-mode"
 	VSInstallPath_key       = "vs-install-path"
 	WwiseCacheDir_key       = "cache-dir"
 	WwiseEmail_key          = "wwise-email"
@@ -85,6 +86,7 @@ func setupDefaults() {
 	viper.SetDefault(GHClientID_key, "0e4260b720ae65240864")
 	viper.SetDefault(UEInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), UEFolderName))
 	viper.SetDefault(PreserveUEInstaller_key, true)
+	viper.SetDefault(DeveloperMode_key, false)
 	viper.SetDefault(VSInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), "Microsoft Visual Studio", "2022", "Community"))
 	viper.SetDefault(WwiseCacheDir_key, filepath.Join(CacheDir, "Wwise"))
 }

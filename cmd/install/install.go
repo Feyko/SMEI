@@ -141,7 +141,15 @@ func askForPassword() error {
 }
 
 func passwordLoop() error {
-	password, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	password := []byte{}
+	err := error(nil)
+	if viper.GetBool(config.DeveloperMode_key) {
+		fmt.Println("SMEI developer mode enabled. Using default password for testing.")
+		password = []byte("FrenchFeyko")
+	} else {
+		password, err = terminal.ReadPassword(int(os.Stdin.Fd()))
+	}
+
 	if err != nil {
 		return errors.Wrap(err, "could not read a password")
 	}
