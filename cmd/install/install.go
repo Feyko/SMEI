@@ -2,12 +2,12 @@ package install
 
 import (
 	"SMEI/config"
+	"SMEI/lib/colors"
 	"SMEI/lib/elevate"
 	"SMEI/lib/env/project"
 	"SMEI/lib/env/ue"
 	"SMEI/lib/env/vs"
 	"SMEI/lib/secret"
-	"SMEI/lib/termcolors"
 	"fmt"
 	"log"
 	"os"
@@ -92,13 +92,13 @@ var Cmd = &cobra.Command{
 		local := viper.GetBool("local")
 		target := viper.GetString("target")
 
-		fmt.Println("Checking SMEI cached files")
+		colors.SequenceColor.Println("Checking SMEI cached files")
 		installerDir := os.TempDir()
 		if viper.GetBool(config.PreserveUEInstaller_key) {
 			installerDir = filepath.Join(config.ConfigDir, ue.CacheFolder)
 		}
 
-		fmt.Println("Analyzing Unreal Engine install")
+		colors.SequenceColor.Println("Analyzing Unreal Engine install")
 		UEInstallDir := viper.GetString(config.UEInstallPath_key)
 		fmt.Printf("Expecting UE install dir to be at '%v'\n", UEInstallDir)
 		if local {
@@ -110,7 +110,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not install the Unreal Engine: %v", err)
 		}
 
-		fmt.Println("Installing Visual Studio...")
+		colors.SequenceColor.Println("Installing Visual Studio...")
 		VSInstallPath := viper.GetString(config.VSInstallPath_key)
 		if local {
 			VSInstallPath = filepath.Join(target, "VS22")
@@ -121,8 +121,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not install Visual Studio: %v", err)
 		}
 
-		fmt.Println("Installing modding project...")
-
+		colors.SequenceColor.Println("Installing modding project...")
 		err = project.Install(target, UEInstallDir, project.WwiseAuth{
 			Email:    wwiseEmail,
 			Password: wwisePassword,
@@ -136,10 +135,10 @@ var Cmd = &cobra.Command{
 
 func askForPassword() error {
 	if config.HasLoggedInBefore() {
-		fmt.Println("If you forgot your password, delete config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
+		colors.RequestColor.Println("If you forgot your password, delete config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
 	} else {
-		warning := termcolors.WarningColor.SprintFunc()
-		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
+		warning := colors.WarningColor.SprintFunc()
+		colors.RequestColor.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
 			warning("Please note that there is no way to retrieve this password."))
 	}
 
@@ -150,7 +149,7 @@ func passwordLoop() error {
 	password := []byte{}
 	err := error(nil)
 	if viper.GetBool(config.DeveloperMode_key) {
-		fmt.Println("SMEI developer mode enabled. Using default SMEI password for testing.")
+		colors.SequenceColor.Println("SMEI developer mode enabled. Using default SMEI password for testing.")
 		password = []byte("FrenchFeyko")
 	} else {
 		password, err = terminal.ReadPassword(int(os.Stdin.Fd()))
@@ -162,11 +161,11 @@ func passwordLoop() error {
 
 	err = config.SetPassword(secret.String(password))
 	if err == config.InvalidPassword {
-		termcolors.ErrorColor.Println("Invalid password. Please try again.")
+		colors.ErrorColor.Println("Invalid password. Please try again.")
 		return passwordLoop()
 	}
 	if err == config.PasswordTooShort {
-		termcolors.ErrorColor.Println("Password too short. Please try again.")
+		colors.ErrorColor.Println("Password too short. Please try again.")
 		return passwordLoop()
 	}
 	if err != nil {
@@ -177,14 +176,14 @@ func passwordLoop() error {
 }
 
 func askForWwiseAuth() error {
-	fmt.Print("SMEI needs credentials to your Audiokinetic/Wwise account. " +
+	colors.RequestColor.Print("SMEI needs credentials to your Audiokinetic/Wwise account. " +
 		"If you do not already have one, please navigate to https://www.audiokinetic.com/ and register.\n" +
 		"Please input your account email (input is obscured):\n")
 	email, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return errors.Wrap(err, "could not read the input")
 	}
-	fmt.Println("Please input your account password (input is obscured): ")
+	colors.RequestColor.Println("Please input your account password (input is obscured): ")
 	return wwisePasswordLoop(string(email))
 }
 

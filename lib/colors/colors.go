@@ -1,4 +1,4 @@
-package termcolors
+package colors
 
 import (
 	"github.com/fatih/color"
@@ -8,8 +8,6 @@ var WarningColor = color.New(color.FgYellow, color.Bold)
 
 var ErrorColor = color.New(color.FgRed, color.Bold)
 
-func hello() string {
-	return "hello world"
-}
+var SequenceColor = color.New(color.FgCyan, color.Italic)
 
-const helloConst = "hello world"
+var RequestColor = color.New(color.FgWhite, color.Bold)
