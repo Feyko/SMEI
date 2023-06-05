@@ -7,6 +7,7 @@ import (
 	"SMEI/lib/env/ue"
 	"SMEI/lib/env/vs"
 	"SMEI/lib/secret"
+	"SMEI/lib/termcolors"
 	"fmt"
 	"log"
 	"os"
@@ -137,7 +138,7 @@ func askForPassword() error {
 	if config.HasLoggedInBefore() {
 		fmt.Println("If you forgot your password, delete config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
 	} else {
-		warning := color.New(color.FgRed, color.Bold).SprintFunc()
+		warning := termcolors.WarningColor.SprintFunc()
 		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
 			warning("Please note that there is no way to retrieve this password."))
 	}
@@ -161,11 +162,11 @@ func passwordLoop() error {
 
 	err = config.SetPassword(secret.String(password))
 	if err == config.InvalidPassword {
-		color.New(color.FgRed, color.Bold).Println("Invalid password. Please try again.")
+		termcolors.ErrorColor.Println("Invalid password. Please try again.")
 		return passwordLoop()
 	}
 	if err == config.PasswordTooShort {
-		color.New(color.FgRed, color.Bold).Println("Password too short. Please try again.")
+		termcolors.ErrorColor.Println("Password too short. Please try again.")
 		return passwordLoop()
 	}
 	if err != nil {
