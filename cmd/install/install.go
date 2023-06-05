@@ -114,7 +114,8 @@ var Cmd = &cobra.Command{
 		if local {
 			VSInstallPath = filepath.Join(target, "VS22")
 		}
-		err = vs.Install(VSInstallPath)
+		avoidVsReinstall := viper.GetBool(config.VSSkipReinstall_key)
+		err = vs.Install(VSInstallPath, avoidVsReinstall)
 		if err != nil {
 			log.Panicf("Could not install Visual Studio: %v", err)
 		}

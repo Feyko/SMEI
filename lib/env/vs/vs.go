@@ -14,8 +14,14 @@ type Info struct {
 	Components []string
 }
 
-func Install(path string) error {
-	fmt.Println(path)
+func Install(path string, avoidVsReinstall bool) error {
+	if avoidVsReinstall {
+		// TODO move this to a better part of the process
+		fmt.Println("Skipping installing Visual Stuido due to user-selected config option")
+		return nil
+	}
+
+	fmt.Printf("Installing Visual Studio at: %s\n", path)
 
 	targetPath, err := filepath.Abs(path)
 

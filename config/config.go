@@ -30,6 +30,7 @@ const (
 	PreserveUEInstaller_key = "ue-preserve-installer"
 	DeveloperMode_key       = "smei-developer-mode"
 	VSInstallPath_key       = "vs-install-path"
+	VSSkipReinstall_key     = "vs-skip-reinstall"
 	WwiseCacheDir_key       = "cache-dir"
 	WwiseEmail_key          = "wwise-email"
 	WwisePassword_key       = "wwise-password"
