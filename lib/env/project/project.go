@@ -3,14 +3,15 @@ package project
 import (
 	"SMEI/lib/secret"
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/mircearoata/wwise-cli/lib/wwise"
 	"github.com/mircearoata/wwise-cli/lib/wwise/client"
 	"github.com/mircearoata/wwise-cli/lib/wwise/product"
 	"github.com/pkg/errors"
-	"os"
-	"os/exec"
-	"path/filepath"
 )
 
 type Info struct {
@@ -25,6 +26,7 @@ type GitInfo struct {
 }
 
 func Clone(targetPath string) error {
+	fmt.Printf("Cloning starter project to '%s'...\n", targetPath)
 	_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
 		URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
 		Progress: os.Stdout,
@@ -47,6 +49,7 @@ func makeUBTArguments(targetPath string) []string {
 }
 
 func GenerateProjectFiles(targetPath, UEPath string) error {
+	fmt.Println("Generating Visual Studio project files...")
 	UBTPath := filepath.Join(UEPath, "Engine", "Binaries", "DotNET", "UnrealBuildTool.exe")
 	arguments := makeUBTArguments(targetPath)
 	cmd := exec.Command(UBTPath, arguments...)
@@ -60,11 +63,14 @@ func GenerateProjectFiles(targetPath, UEPath string) error {
 }
 
 func BuildAll(targetPath, UEPath string) error {
+	fmt.Println("Building Development Editor...")
 	err := BuildDevEditor(targetPath, UEPath)
 	if err != nil {
 		return err
 	}
+	fmt.Println("Building Shipping...")
 	err = BuildShipping(targetPath, UEPath)
+	// TODO build dedicated servers
 	return err
 }
 
@@ -133,6 +139,7 @@ type WwiseAuth struct {
 }
 
 func InstallWWise(targetPath string, auth WwiseAuth) error {
+	fmt.Println("Installing Wwise files...")
 	wwiseClient := client.NewWwiseClient()
 
 	err := wwiseClient.Authenticate(string(auth.Email), string(auth.Password))
@@ -164,6 +171,7 @@ func InstallWWise(targetPath string, auth WwiseAuth) error {
 		}
 	}
 
+	fmt.Println("Integrating Wwise files...")
 	err = wwise.IntegrateWwiseUnreal(targetPathToUProjectPath(targetPath), "2021.1.8.2285", wwiseClient)
 	if err != nil {
 		return errors.Wrap(err, "integration failed")
