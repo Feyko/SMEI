@@ -3,7 +3,6 @@ package install
 import (
 	"SMEI/config"
 	"SMEI/lib/elevate"
-	"SMEI/lib/env/gh"
 	"SMEI/lib/env/project"
 	"SMEI/lib/env/ue"
 	"SMEI/lib/env/vs"
@@ -86,11 +85,6 @@ var Cmd = &cobra.Command{
 		wwisePassword, err := config.GetSecretString(config.WwisePassword_key)
 		if err != nil {
 			log.Panicf("Could not get the Wwise password: %v", err)
-		}
-
-		_, err = gh.GetToken()
-		if err != nil {
-			log.Panicf("Could not get a GitHub access token: %v", err)
 		}
 
 		local := viper.GetBool("local")
