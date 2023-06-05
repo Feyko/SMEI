@@ -134,11 +134,11 @@ var Cmd = &cobra.Command{
 
 func askForPassword() error {
 	if config.HasLoggedInBefore() {
-		fmt.Println("If you forgot your password, delete the `pass-check` line from config.yml in %APPDATA%\\SMEI\\\nPlease input your password:")
+		fmt.Println("If you forgot your password, delete the `pass-check` line from config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
 	} else {
 		warning := color.New(color.FgRed, color.Bold).SprintFunc()
-		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s. Input your password:\n",
-			warning("Please note that there is no way to retrieve this password"))
+		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
+			warning("Please note that there is no way to retrieve this password."))
 	}
 
 	return passwordLoop()
@@ -177,14 +177,12 @@ func passwordLoop() error {
 func askForWwiseAuth() error {
 	fmt.Print("SMEI needs credentials to your Audiokinetic/Wwise account. " +
 		"If you do not already have one, please navigate to https://www.audiokinetic.com/ and register.\n" +
-		"Please input your account email\n")
-	//var email string
-	//_, err := fmt.Scanln(&email)
+		"Please input your account email (input is obscured):\n")
 	email, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return errors.Wrap(err, "could not read the input")
 	}
-	fmt.Println("Please input your account password: ")
+	fmt.Println("Please input your account password (input is obscured): ")
 	return wwisePasswordLoop(string(email))
 }
 
