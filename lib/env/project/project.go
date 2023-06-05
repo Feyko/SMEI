@@ -25,13 +25,33 @@ type GitInfo struct {
 	UpToDate bool
 }
 
+func projectExists(targetPath string) (bool, error) {
+	_, err := os.Stat(targetPath)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func Clone(targetPath string) error {
-	fmt.Printf("Cloning starter project to '%s'...\n", targetPath)
-	_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
-		URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
-		Progress: os.Stdout,
-	})
-	return err
+	exists, err := projectExists(targetPath)
+	if err != nil {
+		return errors.Wrap(err, "could not check if the project already exists")
+	}
+	if exists {
+		fmt.Printf("Project already exists in '%s', skipping clone\n", targetPath)
+		return nil
+	} else {
+		fmt.Printf("Cloning starter project to '%s' (this can take many minutes)...\n", targetPath)
+		_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
+			URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
+			Progress: os.Stdout,
+		})
+		return err
+	}
 }
 
 func targetPathToUProjectPath(targetPath string) string {
