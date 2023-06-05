@@ -5,6 +5,7 @@ import (
 	"SMEI/lib/secret"
 	"context"
 	"fmt"
+
 	"gg-scm.io/pkg/ghdevice"
 	"github.com/google/go-github/v42/github"
 	"github.com/pkg/errors"
@@ -55,7 +56,7 @@ func GetToken() (secret.String, error) {
 }
 
 func prompter(ctx context.Context, prompt ghdevice.Prompt) error {
-	fmt.Printf("Please navigate to %v and enter the following code: %v\n", prompt.VerificationURL, prompt.UserCode)
+	fmt.Printf("Please navigate to %v and enter the following code: %v\nAfter authenticating, the download will begin here after a few seconds.\n", prompt.VerificationURL, prompt.UserCode)
 	return nil
 }
 
