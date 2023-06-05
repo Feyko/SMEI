@@ -76,13 +76,13 @@ var Cmd = &cobra.Command{
 		local := viper.GetBool("local")
 		target := viper.GetString("target")
 
-		colors.SequenceColor.Println("Checking SMEI cached files")
+		colors.Sequence.Println("Checking SMEI cached files")
 		installerDir := os.TempDir()
 		if viper.GetBool(config.PreserveUEInstaller_key) {
 			installerDir = filepath.Join(config.ConfigDir, ue.CacheFolder)
 		}
 
-		colors.SequenceColor.Println("Analyzing Unreal Engine install")
+		colors.Sequence.Println("Analyzing Unreal Engine install")
 		UEInstallDir := viper.GetString(config.UEInstallPath_key)
 		fmt.Printf("Expecting UE install dir to be at '%v'\n", UEInstallDir)
 		if local {
@@ -94,7 +94,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not install the Unreal Engine: %v", err)
 		}
 
-		colors.SequenceColor.Println("Installing Visual Studio...")
+		colors.Sequence.Println("Installing Visual Studio...")
 		VSInstallPath := viper.GetString(config.VSInstallPath_key)
 		if local {
 			VSInstallPath = filepath.Join(target, "VS22")
@@ -105,7 +105,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not install Visual Studio: %v", err)
 		}
 
-		colors.SequenceColor.Println("Installing modding project...")
+		colors.Sequence.Println("Installing modding project...")
 		err = project.Install(target, UEInstallDir, *wwiseCredentials)
 
 		if err != nil {

@@ -56,7 +56,7 @@ func GetToken() (secret.String, error) {
 }
 
 func prompter(ctx context.Context, prompt ghdevice.Prompt) error {
-	colors.SequenceColor.Printf("Please navigate to %v and enter the following code: %v\nAfter authenticating, the download will begin here after a few seconds.\n", prompt.VerificationURL, prompt.UserCode)
+	colors.Sequence.Printf("Please navigate to %v and enter the following code: %v\nAfter authenticating, the download will begin here after a few seconds.\n", prompt.VerificationURL, prompt.UserCode)
 	return nil
 }
 

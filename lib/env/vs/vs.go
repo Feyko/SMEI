@@ -18,11 +18,11 @@ type Info struct {
 func Install(path string, avoidVsReinstall bool) error {
 	if avoidVsReinstall {
 		// TODO move this to a better part of the process
-		colors.SequenceColor.Println("Skipping installing Visual Stuido due to user-selected config option")
+		colors.Sequence.Println("Skipping installing Visual Stuido due to user-selected config option")
 		return nil
 	}
 
-	colors.SequenceColor.Printf("Installing Visual Studio at: %s\n", path)
+	colors.Sequence.Printf("Installing Visual Studio at: %s\n", path)
 
 	targetPath, err := filepath.Abs(path)
 

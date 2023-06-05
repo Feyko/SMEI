@@ -45,10 +45,10 @@ func Clone(targetPath string) error {
 		return errors.Wrap(err, "could not check if the project already exists")
 	}
 	if exists {
-		colors.SequenceColor.Printf("Project already exists in '%s', skipping clone\n", targetPath)
+		colors.Sequence.Printf("Project already exists in '%s', skipping clone\n", targetPath)
 		return nil
 	} else {
-		colors.SequenceColor.Printf("Cloning starter project to '%s' (this can take many minutes)...\n", targetPath)
+		colors.Sequence.Printf("Cloning starter project to '%s' (this can take many minutes)...\n", targetPath)
 		_, err := git.PlainClone(filepath.Join(targetPath, "SatisfactoryModLoader"), false, &git.CloneOptions{
 			URL:      "https://github.com/SatisfactoryModding/SatisfactoryModLoader",
 			Progress: os.Stdout,
@@ -72,7 +72,7 @@ func makeUBTArguments(targetPath string) []string {
 }
 
 func GenerateProjectFiles(targetPath, UEPath string) error {
-	colors.SequenceColor.Println("Generating Visual Studio project files...")
+	colors.Sequence.Println("Generating Visual Studio project files...")
 	UBTPath := filepath.Join(UEPath, "Engine", "Binaries", "DotNET", "UnrealBuildTool.exe")
 	arguments := makeUBTArguments(targetPath)
 	cmd := exec.Command(UBTPath, arguments...)
@@ -86,12 +86,12 @@ func GenerateProjectFiles(targetPath, UEPath string) error {
 }
 
 func BuildAll(targetPath, UEPath string) error {
-	colors.SequenceColor.Println("Building Development Editor...")
+	colors.Sequence.Println("Building Development Editor...")
 	err := BuildDevEditor(targetPath, UEPath)
 	if err != nil {
 		return err
 	}
-	colors.SequenceColor.Println("Building Shipping...")
+	colors.Sequence.Println("Building Shipping...")
 	err = BuildShipping(targetPath, UEPath)
 	// TODO build dedicated servers
 	return err
@@ -159,7 +159,7 @@ func Install(targetPath string, UEPath string, auth credentials.WwiseAuth) error
 func InstallWWise(targetPath string, auth credentials.WwiseAuth) error {
 	sdkVersion := viper.GetString(config.WwiseSdkVersion_key)
 	integrationVersion := viper.GetString(config.WwiseIntegrationVersion_key)
-	colors.SequenceColor.Printf("Downloading Wwise sdk %s files...\n", sdkVersion)
+	colors.Sequence.Printf("Downloading Wwise sdk %s files...\n", sdkVersion)
 	wwiseClient := client.NewWwiseClient()
 
 	err := wwiseClient.Authenticate(string(auth.Email), string(auth.Password))
@@ -191,7 +191,7 @@ func InstallWWise(targetPath string, auth credentials.WwiseAuth) error {
 		}
 	}
 
-	colors.SequenceColor.Printf("Integrating Wwise %s files...\n", integrationVersion)
+	colors.Sequence.Printf("Integrating Wwise %s files...\n", integrationVersion)
 	err = wwise.IntegrateWwiseUnreal(targetPathToUProjectPath(targetPath), integrationVersion, wwiseClient)
 	if err != nil {
 		return errors.Wrap(err, "integration failed")

@@ -64,7 +64,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not get the Wwise credentials: %v", err)
 		}
 
-		colors.SequenceColor.Printf("Integrating Wwise into project '%s'...\n", target)
+		colors.Sequence.Printf("Integrating Wwise into project '%s'...\n", target)
 		err = project.InstallWWise(target, *wwiseCredentials)
 
 		if err != nil {

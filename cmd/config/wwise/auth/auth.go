@@ -11,7 +11,7 @@ var Cmd = &cobra.Command{
 	Use:   "auth",
 	Short: "UNIMPLEMENTED Configure Wwise authentication",
 	Run: func(cmd *cobra.Command, args []string) {
-		colors.SequenceColor.Println("This command is not yet implemented")
+		colors.Sequence.Println("This command is not yet implemented")
 		cmdhelp.PrintHelp(cmd)
 	},
 }

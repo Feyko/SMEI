@@ -4,10 +4,10 @@ import (
 	"github.com/fatih/color"
 )
 
-var WarningColor = color.New(color.FgYellow, color.Bold)
+var Warning = color.New(color.FgYellow, color.Bold)
 
-var ErrorColor = color.New(color.FgRed, color.Bold)
+var Error = color.New(color.FgRed, color.Bold)
 
-var SequenceColor = color.New(color.FgCyan, color.Italic)
+var Sequence = color.New(color.FgCyan, color.Italic)
 
-var RequestColor = color.New(color.FgWhite, color.Bold)
+var Request = color.New(color.FgWhite, color.Bold)
