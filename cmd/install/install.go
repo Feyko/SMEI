@@ -130,7 +130,7 @@ var Cmd = &cobra.Command{
 
 func askForPassword() error {
 	if config.HasLoggedInBefore() {
-		fmt.Println("Please input your password:")
+		fmt.Println("If you forgot your password, delete the `pass-check` line from config.yml in %APPDATA%\\SMEI\\\nPlease input your password:")
 	} else {
 		warning := color.New(color.FgRed, color.Bold).SprintFunc()
 		fmt.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s. Input your password:\n",
