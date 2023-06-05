@@ -5,14 +5,15 @@ import (
 	"SMEI/lib/env/gh"
 	"context"
 	"fmt"
-	"github.com/google/go-github/v42/github"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+
+	"github.com/google/go-github/v42/github"
+	"github.com/pkg/errors"
 )
 
 const orgName = "SatisfactoryModdingUE"
@@ -25,19 +26,23 @@ type Info struct {
 	Location string
 }
 
-func Install(installDir, installerDir string) error {
+func Install(installDir, installerDir string, avoidUeReinstall bool) error {
 	cached, err := installerIsCached()
 	if err != nil {
 		return errors.Wrap(err, "could not check if the installer is cached")
 	}
 	if !cached {
+		fmt.Println("UE installer is not cached, downloading it. This will require GitHub authentication.")
 		err = downloadInstaller(installerDir)
 		if err != nil {
 			return errors.Wrap(err, "could not download the installer")
 		}
+	} else {
+		fmt.Printf("UE installer is cached in '%s'\n", getInstallerPath())
+		fmt.Println("TODO: Need detection for how old the cached UE version is and/or if there is a newer version available")
 	}
 
-	err = runInstaller(installerDir, installDir)
+	err = runInstallerIfRequired(installerDir, installDir, avoidUeReinstall)
 	if err != nil {
 		return fmt.Errorf("could not run the Unreal Engine installer: %v", err)
 	}
@@ -45,8 +50,12 @@ func Install(installDir, installerDir string) error {
 	return nil
 }
 
+func getInstallerPath() string {
+	return filepath.Join(config.ConfigDir, CacheFolder, installerName)
+}
+
 func installerIsCached() (bool, error) {
-	_, err := os.Stat(filepath.Join(config.ConfigDir, CacheFolder, installerName))
+	_, err := os.Stat(getInstallerPath())
 	if os.IsNotExist(err) {
 		return false, nil
 	}
@@ -160,11 +169,11 @@ func writeAssetFile(targetDir, assetName string, data []byte) error {
 	return os.WriteFile(filename, data, 0666)
 }
 
-func runInstaller(installerDir, installDir string) error {
+func runInstallerIfRequired(installerDir, installDir string, avoidUeReinstall bool) error {
 	reinstall := false
 	other, err := hasOtherInstall()
 	if err != nil {
-		return errors.Wrap(err, "could not check if an install already exists")
+		return errors.Wrap(err, "could not check if an Unreal Engine install already exists")
 	}
 
 	if other {
@@ -172,6 +181,16 @@ func runInstaller(installerDir, installDir string) error {
 		if err != nil {
 			return errors.Wrap(err, "could not check if this is a reinstall")
 		}
+		if reinstall {
+			fmt.Printf("An install already exists in '%s', this is a reinstall\n", installDir)
+		} else {
+			fmt.Println("The existing install appears unrelated TODO @feyko better message?")
+		}
+	}
+
+	if reinstall && avoidUeReinstall {
+		fmt.Println("Skipping installing Unreal Engine again due to user-selected config option")
+		return nil
 	}
 
 	if other && !reinstall {
@@ -181,6 +200,11 @@ func runInstaller(installerDir, installDir string) error {
 		}
 	}
 
+	return runInstaller(installDir, installerDir)
+}
+
+func runInstaller(installDir, installerDir string) error {
+	fmt.Println("Running the UE installer")
 	filename := filepath.Join(installerDir, installerName)
 
 	cmd := exec.Command(filename,
@@ -189,9 +213,7 @@ func runInstaller(installerDir, installDir string) error {
 		fmt.Sprintf(`/DIR=%v`, installDir),
 	)
 
-	err = cmd.Run()
-
-	return err
+	return cmd.Run()
 }
 
 func filterAssets(assets []*github.ReleaseAsset) ([]*github.ReleaseAsset, error) {

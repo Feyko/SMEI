@@ -4,11 +4,12 @@ import (
 	"SMEI/lib/crypt"
 	"SMEI/lib/secret"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 var ConfigDir string
@@ -25,6 +26,7 @@ const (
 	GHClientID_key          = "gh-client-id"
 	GHToken_key             = "gh-token"
 	UEInstallPath_key       = "ue-install-path"
+	UESkipReinstall_key     = "ue-skip-reinstall"
 	PreserveUEInstaller_key = "ue-preserve-installer"
 	DeveloperMode_key       = "smei-developer-mode"
 	VSInstallPath_key       = "vs-install-path"
@@ -85,6 +87,7 @@ func setupCacheDir() {
 func setupDefaults() {
 	viper.SetDefault(GHClientID_key, "0e4260b720ae65240864")
 	viper.SetDefault(UEInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), UEFolderName))
+	viper.SetDefault(UESkipReinstall_key, false)
 	viper.SetDefault(PreserveUEInstaller_key, true)
 	viper.SetDefault(DeveloperMode_key, false)
 	viper.SetDefault(VSInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), "Microsoft Visual Studio", "2022", "Community"))

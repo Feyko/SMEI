@@ -8,16 +8,17 @@ import (
 	"SMEI/lib/env/vs"
 	"SMEI/lib/secret"
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"path/filepath"
+
 	"github.com/fatih/color"
 	"github.com/mircearoata/wwise-cli/lib/wwise/client"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
-	"log"
-	"os"
-	"os/signal"
-	"path/filepath"
 )
 
 func init() {
@@ -90,17 +91,20 @@ var Cmd = &cobra.Command{
 		local := viper.GetBool("local")
 		target := viper.GetString("target")
 
-		UEInstallDir := viper.GetString(config.UEInstallPath_key)
-		if local {
-			UEInstallDir = filepath.Join(target, config.UEFolderName)
-		}
+		fmt.Println("Checking SMEI cached files")
 		installerDir := os.TempDir()
 		if viper.GetBool(config.PreserveUEInstaller_key) {
 			installerDir = filepath.Join(config.ConfigDir, ue.CacheFolder)
 		}
 
-		fmt.Println("Installing the Unreal Engine")
-		err = ue.Install(UEInstallDir, installerDir)
+		fmt.Println("Analyzing Unreal Engine install")
+		UEInstallDir := viper.GetString(config.UEInstallPath_key)
+		fmt.Printf("Expecting UE install dir to be at '%v'\n", UEInstallDir)
+		if local {
+			UEInstallDir = filepath.Join(target, config.UEFolderName)
+		}
+		avoidUeReinstall := viper.GetBool(config.UESkipReinstall_key)
+		err = ue.Install(UEInstallDir, installerDir, avoidUeReinstall)
 		if err != nil {
 			log.Panicf("Could not install the Unreal Engine: %v", err)
 		}
