@@ -23,18 +23,20 @@ const passCheck = "SMEI"
 const MinPasswordLength = 8
 
 const (
-	GHClientID_key          = "gh-client-id"
-	GHToken_key             = "gh-token"
-	UEInstallPath_key       = "ue-install-path"
-	UESkipReinstall_key     = "ue-skip-reinstall"
-	PreserveUEInstaller_key = "ue-preserve-installer"
-	DeveloperMode_key       = "smei-developer-mode"
-	VSInstallPath_key       = "vs-install-path"
-	VSSkipReinstall_key     = "vs-skip-reinstall"
-	WwiseCacheDir_key       = "cache-dir"
-	WwiseEmail_key          = "wwise-email"
-	WwisePassword_key       = "wwise-password"
-	PassCheck_key           = "pass-check"
+	GHClientID_key              = "gh-client-id"
+	GHToken_key                 = "gh-token"
+	UEInstallPath_key           = "ue-install-path"
+	UESkipReinstall_key         = "ue-skip-reinstall"
+	PreserveUEInstaller_key     = "ue-preserve-installer"
+	DeveloperMode_key           = "smei-developer-mode"
+	VSInstallPath_key           = "vs-install-path"
+	VSSkipReinstall_key         = "vs-skip-reinstall"
+	WwiseCacheDir_key           = "cache-dir"
+	WwiseSdkVersion_key         = "wwise-version-id"
+	WwiseIntegrationVersion_key = "wwise-integration-version"
+	WwiseEmail_key              = "wwise-email"
+	WwisePassword_key           = "wwise-password"
+	PassCheck_key               = "pass-check"
 )
 
 func init() {
@@ -93,6 +95,8 @@ func setupDefaults() {
 	viper.SetDefault(DeveloperMode_key, false)
 	viper.SetDefault(VSInstallPath_key, filepath.Join(os.ExpandEnv("$ProgramFiles"), "Microsoft Visual Studio", "2022", "Community"))
 	viper.SetDefault(WwiseCacheDir_key, filepath.Join(CacheDir, "Wwise"))
+	viper.SetDefault(WwiseSdkVersion_key, "2021.1.8.7831")
+	viper.SetDefault(WwiseIntegrationVersion_key, "2021.1.8.2285")
 }
 
 func SetPassword(newPassword secret.String) error {

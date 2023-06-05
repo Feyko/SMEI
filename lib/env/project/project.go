@@ -1,8 +1,9 @@
 package project
 
 import (
+	"SMEI/config"
 	"SMEI/lib/colors"
-	"SMEI/lib/secret"
+	"SMEI/lib/credentials"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,6 +14,7 @@ import (
 	"github.com/mircearoata/wwise-cli/lib/wwise/client"
 	"github.com/mircearoata/wwise-cli/lib/wwise/product"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 type Info struct {
@@ -129,7 +131,7 @@ func makeTargetArguments(shipping bool) []string {
 	return []string{"FactoryGameEditor", "Win64", "Development"}
 }
 
-func Install(targetPath string, UEPath string, auth WwiseAuth) error {
+func Install(targetPath string, UEPath string, auth credentials.WwiseAuth) error {
 	var err error
 	err = Clone(targetPath)
 	if err != nil {
@@ -154,13 +156,10 @@ func Install(targetPath string, UEPath string, auth WwiseAuth) error {
 	return nil
 }
 
-type WwiseAuth struct {
-	Email    secret.String
-	Password secret.String
-}
-
-func InstallWWise(targetPath string, auth WwiseAuth) error {
-	colors.SequenceColor.Println("Installing Wwise files...")
+func InstallWWise(targetPath string, auth credentials.WwiseAuth) error {
+	sdkVersion := viper.GetString(config.WwiseSdkVersion_key)
+	integrationVersion := viper.GetString(config.WwiseIntegrationVersion_key)
+	colors.SequenceColor.Printf("Downloading Wwise sdk %s files...\n", sdkVersion)
 	wwiseClient := client.NewWwiseClient()
 
 	err := wwiseClient.Authenticate(string(auth.Email), string(auth.Password))
@@ -169,7 +168,7 @@ func InstallWWise(targetPath string, auth WwiseAuth) error {
 	}
 
 	sdk := product.NewWwiseProduct(wwiseClient, "wwise")
-	sdkProductVersion, err := sdk.GetVersion("2021.1.8.7831")
+	sdkProductVersion, err := sdk.GetVersion(sdkVersion)
 	if err != nil {
 		return errors.Wrap(err, "could not get SDK version")
 	}
@@ -192,8 +191,8 @@ func InstallWWise(targetPath string, auth WwiseAuth) error {
 		}
 	}
 
-	colors.SequenceColor.Println("Integrating Wwise files...")
-	err = wwise.IntegrateWwiseUnreal(targetPathToUProjectPath(targetPath), "2021.1.8.2285", wwiseClient)
+	colors.SequenceColor.Printf("Integrating Wwise %s files...\n", integrationVersion)
+	err = wwise.IntegrateWwiseUnreal(targetPathToUProjectPath(targetPath), integrationVersion, wwiseClient)
 	if err != nil {
 		return errors.Wrap(err, "integration failed")
 	}
