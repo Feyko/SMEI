@@ -105,6 +105,7 @@ func defaultConfigObject() map[string]interface{} {
 			"Microsoft.VisualStudio.Workload.NativeGame",
 			"Microsoft.Net.Component.4.8.SDK",
 			"Microsoft.VisualStudio.Component.Windows10SDK.20348",
+			"Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
 		},
 		"passive":   true,
 		"force":     true,
