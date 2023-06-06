@@ -57,8 +57,12 @@ func Clone(targetPath string) error {
 	}
 }
 
-func targetPathToUProjectPath(targetPath string) string {
-	return filepath.Join(targetPath, "SatisfactoryModLoader", "FactoryGame.uproject")
+func TargetPathToUProjectPath(targetPath string, useSmlMiddle bool) string {
+	if useSmlMiddle {
+		return filepath.Join(targetPath, "SatisfactoryModLoader", "FactoryGame.uproject")
+	} else {
+		return filepath.Join(targetPath, "FactoryGame.uproject")
+	}
 }
 
 func makeUBTArguments(targetPath string) []string {
@@ -67,7 +71,7 @@ func makeUBTArguments(targetPath string) []string {
 		"-game",
 		"-rocket",
 		"-progress",
-		fmt.Sprintf("-project=%v", targetPathToUProjectPath(targetPath)),
+		fmt.Sprintf("-project=%v", TargetPathToUProjectPath(targetPath, true)),
 	}
 }
 
@@ -119,7 +123,7 @@ func Build(targetPath, UEPath string, shipping bool) error {
 func makeBuildArguments(targetPath string, shipping bool) []string {
 	var r []string
 	r = append(r, makeTargetArguments(shipping)...)
-	r = append(r, "-Target="+targetPathToUProjectPath(targetPath))
+	r = append(r, "-Target="+TargetPathToUProjectPath(targetPath, true))
 	r = append(r, "-WaitMutex", "-FromMsBuild")
 	return r
 }
@@ -156,7 +160,7 @@ func Install(targetPath string, UEPath string, auth credentials.WwiseAuth) error
 	return nil
 }
 
-func InstallWWise(targetPath string, auth credentials.WwiseAuth) error {
+func InstallWWise(uprojectPath string, auth credentials.WwiseAuth) error {
 	sdkVersion := viper.GetString(config.WwiseSdkVersion_key)
 	integrationVersion := viper.GetString(config.WwiseIntegrationVersion_key)
 	colors.Sequence.Printf("Downloading Wwise sdk %s files...\n", sdkVersion)
@@ -192,7 +196,7 @@ func InstallWWise(targetPath string, auth credentials.WwiseAuth) error {
 	}
 
 	colors.Sequence.Printf("Integrating Wwise %s files...\n", integrationVersion)
-	err = wwise.IntegrateWwiseUnreal(targetPathToUProjectPath(targetPath), integrationVersion, wwiseClient)
+	err = wwise.IntegrateWwiseUnreal(uprojectPath, integrationVersion, wwiseClient)
 	if err != nil {
 		return errors.Wrap(err, "integration failed")
 	}

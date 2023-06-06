@@ -17,7 +17,7 @@ import (
 func init() {
 	flags := Cmd.Flags()
 
-	flags.StringP("target", "t", "", "Path to existing project folder")
+	flags.StringP("target", "t", "", "Path to existing project folder (containing the .uproject file)")
 
 	requiredFlags := []string{"target"}
 	for _, flag := range requiredFlags {
@@ -30,7 +30,7 @@ func init() {
 
 var Cmd = &cobra.Command{
 	Use:   "integrate",
-	Short: "Integrate wwise into an existing project",
+	Short: "(Re-)Integrate wwise into an existing project. Config file controls wwise version used.",
 	Run: func(cmd *cobra.Command, args []string) {
 		defer func() {
 			v := recover()
@@ -64,11 +64,13 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not get the Wwise credentials: %v", err)
 		}
 
-		colors.Sequence.Printf("Integrating Wwise into project '%s'...\n", target)
-		err = project.InstallWWise(target, *wwiseCredentials)
+		uprojectPath := project.TargetPathToUProjectPath(target, false)
+		colors.Sequence.Printf("Integrating Wwise into '%s'...\n", uprojectPath)
+		err = project.InstallWWise(uprojectPath, *wwiseCredentials)
 
 		if err != nil {
 			log.Panicf("Could not integrate wwise the project: %v", err)
 		}
+		colors.Sequence.Printf("Wwise integrated into '%s'!\n", uprojectPath)
 	},
 }
