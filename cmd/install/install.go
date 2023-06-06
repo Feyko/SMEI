@@ -68,6 +68,7 @@ var Cmd = &cobra.Command{
 			}
 		}
 
+		// Collect Wwise credentials in advance of any downloading steps so no interactivity is required mid-install
 		wwiseCredentials, err := credentials.GetWwiseCredentials()
 		if err != nil {
 			log.Panicf("Could not get the Wwise credentials: %v", err)
@@ -82,6 +83,8 @@ var Cmd = &cobra.Command{
 			installerDir = filepath.Join(config.ConfigDir, ue.CacheFolder)
 		}
 
+		// If lacking github credentials, this will prompt for them. Not needed if the installer files don't need to be downloaded.
+		// No further user interaction should be required past this point.
 		colors.Sequence.Println("Analyzing Unreal Engine install")
 		UEInstallDir := viper.GetString(config.UEInstallPath_key)
 		fmt.Printf("Expecting UE install dir to be at '%v'\n", UEInstallDir)
