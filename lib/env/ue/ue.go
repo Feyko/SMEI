@@ -2,7 +2,7 @@ package ue
 
 import (
 	"SMEI/config"
-	"SMEI/lib/colors"
+	"SMEI/lib/cfmt"
 	"SMEI/lib/env/gh"
 	"context"
 	"fmt"
@@ -33,7 +33,7 @@ func Install(installDir, installerDir string, avoidUeReinstall bool) error {
 		return errors.Wrap(err, "could not check if the installer is cached")
 	}
 	if !cached {
-		colors.Sequence.Println("UE installer is not cached, downloading it. This will require GitHub authentication.")
+		cfmt.Sequence.Println("UE installer is not cached, downloading it. This will require GitHub authentication.")
 		err = downloadInstaller(installerDir)
 		if err != nil {
 			return errors.Wrap(err, "could not download the installer")
@@ -136,13 +136,13 @@ func ensureGithubAccess(ctx context.Context, client *github.Client) error {
 func downloadAsset(ctx context.Context, client *github.Client, asset *github.ReleaseAsset, dir string) error {
 	assetName := asset.GetName()
 
-	colors.Sequence.Printf("Downloading asset %v\n", assetName)
+	cfmt.Sequence.Printf("Downloading asset %v\n", assetName)
 	data, err := getAssetData(ctx, client, asset)
 	if err != nil {
 		return fmt.Errorf("could not get data for asset '%v': %v", assetName, err)
 	}
 
-	colors.Sequence.Printf("Writing asset '%v' to disk\n", assetName)
+	cfmt.Sequence.Printf("Writing asset '%v' to disk\n", assetName)
 	err = writeAssetFile(dir, assetName, data)
 	if err != nil {
 		return fmt.Errorf("could not write asset '%v' to disk: %v", assetName, err)
@@ -183,14 +183,14 @@ func runInstallerIfRequired(installerDir, installDir string, avoidUeReinstall bo
 			return errors.Wrap(err, "could not check if this is a reinstall")
 		}
 		if reinstall {
-			colors.Sequence.Printf("An install already exists in '%s', this is a reinstall\n", installDir)
+			cfmt.Sequence.Printf("An install already exists in '%s', this is a reinstall\n", installDir)
 		} else {
-			colors.Sequence.Println("The existing install appears unrelated TODO @feyko better message?")
+			cfmt.Sequence.Println("The existing install appears unrelated TODO @feyko better message?")
 		}
 	}
 
 	if reinstall && avoidUeReinstall {
-		colors.Sequence.Println("Skipping installing Unreal Engine again due to user-selected config option")
+		cfmt.Sequence.Println("Skipping installing Unreal Engine again due to user-selected config option")
 		return nil
 	}
 
@@ -205,7 +205,7 @@ func runInstallerIfRequired(installerDir, installDir string, avoidUeReinstall bo
 }
 
 func runInstaller(installDir, installerDir string) error {
-	colors.Sequence.Println("Running the UE installer")
+	cfmt.Sequence.Println("Running the UE installer")
 	filename := filepath.Join(installerDir, installerName)
 
 	cmd := exec.Command(filename,

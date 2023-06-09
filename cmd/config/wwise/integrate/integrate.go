@@ -2,7 +2,7 @@ package integrate
 
 import (
 	"SMEI/config"
-	"SMEI/lib/colors"
+	"SMEI/lib/cfmt"
 	"SMEI/lib/credentials"
 	"SMEI/lib/env/project"
 	"fmt"
@@ -65,12 +65,12 @@ var Cmd = &cobra.Command{
 		}
 
 		uprojectPath := project.TargetPathToUProjectPath(target, false)
-		colors.Sequence.Printf("Integrating Wwise into '%s'...\n", uprojectPath)
+		cfmt.Sequence.Printf("Integrating Wwise into '%s'...\n", uprojectPath)
 		err = project.InstallWWise(uprojectPath, *wwiseCredentials)
 
 		if err != nil {
 			log.Panicf("Could not integrate wwise the project: %v", err)
 		}
-		colors.Sequence.Printf("Wwise integrated into '%s'!\n", uprojectPath)
+		cfmt.Sequence.Printf("Wwise integrated into '%s'!\n", uprojectPath)
 	},
 }

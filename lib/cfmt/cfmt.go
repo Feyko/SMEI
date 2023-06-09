@@ -1,4 +1,4 @@
-package colors
+package cfmt
 
 import (
 	"github.com/fatih/color"

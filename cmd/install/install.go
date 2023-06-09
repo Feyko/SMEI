@@ -2,7 +2,7 @@ package install
 
 import (
 	"SMEI/config"
-	"SMEI/lib/colors"
+	"SMEI/lib/cfmt"
 	"SMEI/lib/credentials"
 	"SMEI/lib/elevate"
 	"SMEI/lib/env/project"
@@ -77,7 +77,7 @@ var Cmd = &cobra.Command{
 		local := viper.GetBool("local")
 		target := viper.GetString("target")
 
-		colors.Sequence.Println("Checking SMEI cached files")
+		cfmt.Sequence.Println("Checking SMEI cached files")
 		installerDir := os.TempDir()
 		if viper.GetBool(config.PreserveUEInstaller_key) {
 			installerDir = filepath.Join(config.ConfigDir, ue.CacheFolder)
@@ -85,7 +85,7 @@ var Cmd = &cobra.Command{
 
 		// If lacking github credentials, this will prompt for them. Not needed if the installer files don't need to be downloaded.
 		// No further user interaction should be required past this point.
-		colors.Sequence.Println("Analyzing Unreal Engine install")
+		cfmt.Sequence.Println("Analyzing Unreal Engine install")
 		UEInstallDir := viper.GetString(config.UEInstallPath_key)
 		fmt.Printf("Expecting UE install dir to be at '%v'\n", UEInstallDir)
 		if local {
@@ -97,7 +97,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not install the Unreal Engine: %v", err)
 		}
 
-		colors.Sequence.Println("Installing Visual Studio...")
+		cfmt.Sequence.Println("Installing Visual Studio...")
 		VSInstallPath := viper.GetString(config.VSInstallPath_key)
 		if local {
 			VSInstallPath = filepath.Join(target, "VS22")
@@ -108,7 +108,7 @@ var Cmd = &cobra.Command{
 			log.Panicf("Could not install Visual Studio: %v", err)
 		}
 
-		colors.Sequence.Println("Installing modding project...")
+		cfmt.Sequence.Println("Installing modding project...")
 		err = project.Install(target, UEInstallDir, *wwiseCredentials)
 
 		if err != nil {

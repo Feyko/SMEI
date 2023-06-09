@@ -2,7 +2,7 @@ package credentials
 
 import (
 	"SMEI/config"
-	"SMEI/lib/colors"
+	"SMEI/lib/cfmt"
 	"SMEI/lib/secret"
 	"fmt"
 	"log"
@@ -22,10 +22,10 @@ type WwiseAuth struct {
 
 func AskForPassword() error {
 	if config.HasLoggedInBefore() {
-		colors.Request.Println("If you forgot your password, delete config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
+		cfmt.Request.Println("If you forgot your password, delete config.yml in '%APPDATA%\\SMEI\\'\nPlease input your password (input is obscured):")
 	} else {
-		warning := colors.Warning.SprintFunc()
-		colors.Request.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
+		warning := cfmt.Warning.SprintFunc()
+		cfmt.Request.Fprintf(color.Output, "SMEI requires a password to store sensitive information (AudioKinetic and GitHub credentials). %s Create a password (input is obscured):\n",
 			warning("Please note that there is no way to retrieve this password."))
 	}
 
@@ -36,7 +36,7 @@ func passwordLoop() error {
 	password := []byte{}
 	err := error(nil)
 	if viper.GetBool(config.DeveloperMode_key) {
-		colors.Sequence.Println("SMEI developer mode enabled. Using default SMEI password for testing.")
+		cfmt.Sequence.Println("SMEI developer mode enabled. Using default SMEI password for testing.")
 		password = []byte("FrenchFeyko")
 	} else {
 		password, err = terminal.ReadPassword(int(os.Stdin.Fd()))
@@ -48,11 +48,11 @@ func passwordLoop() error {
 
 	err = config.SetPassword(secret.String(password))
 	if err == config.InvalidPassword {
-		colors.Error.Println("Invalid password. Please try again.")
+		cfmt.Error.Println("Invalid password. Please try again.")
 		return passwordLoop()
 	}
 	if err == config.PasswordTooShort {
-		colors.Error.Println("Password too short. Please try again.")
+		cfmt.Error.Println("Password too short. Please try again.")
 		return passwordLoop()
 	}
 	if err != nil {
@@ -63,14 +63,14 @@ func passwordLoop() error {
 }
 
 func askForWwiseAuth() error {
-	colors.Request.Print("SMEI needs credentials to your Audiokinetic/Wwise account. " +
+	cfmt.Request.Print("SMEI needs credentials to your Audiokinetic/Wwise account. " +
 		"If you do not already have one, please navigate to https://www.audiokinetic.com/ and register.\n" +
 		"Please input your account email (input is obscured):\n")
 	email, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return errors.Wrap(err, "could not read the input")
 	}
-	colors.Request.Println("Please input your account password (input is obscured): ")
+	cfmt.Request.Println("Please input your account password (input is obscured): ")
 	return wwisePasswordLoop(string(email))
 }
 

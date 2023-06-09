@@ -1,7 +1,7 @@
 package vs
 
 import (
-	"SMEI/lib/colors"
+	"SMEI/lib/cfmt"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,11 +18,11 @@ type Info struct {
 func Install(path string, avoidVsReinstall bool) error {
 	if avoidVsReinstall {
 		// TODO move this to a better part of the process
-		colors.Sequence.Println("Skipping installing Visual Stuido due to user-selected config option")
+		cfmt.Sequence.Println("Skipping installing Visual Stuido due to user-selected config option")
 		return nil
 	}
 
-	colors.Sequence.Printf("Installing Visual Studio at: %s\n", path)
+	cfmt.Sequence.Printf("Installing Visual Studio at: %s\n", path)
 
 	targetPath, err := filepath.Abs(path)
 
