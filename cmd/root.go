@@ -5,6 +5,7 @@ import (
 	"SMEI/cmd/install"
 	"SMEI/cmd/test"
 	"SMEI/lib/cmdhelp"
+
 	"github.com/spf13/cobra"
 )
 
