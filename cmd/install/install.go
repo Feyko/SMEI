@@ -1,6 +1,7 @@
 package install
 
 import (
+	integrate "SMEI/cmd/install/wwise"
 	"SMEI/config"
 	"SMEI/lib/cfmt"
 	"SMEI/lib/credentials"
@@ -32,11 +33,13 @@ func init() {
 			log.Fatalf("Could not mark flag '%v' as required: %v", flag, err)
 		}
 	}
+
+	Cmd.AddCommand(integrate.Cmd)
 }
 
 var Cmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install a modding environment",
+	Short: "Install a modding environment, or components of one",
 	Run: func(cmd *cobra.Command, args []string) {
 		defer func() {
 			v := recover()

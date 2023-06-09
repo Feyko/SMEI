@@ -29,8 +29,9 @@ func init() {
 }
 
 var Cmd = &cobra.Command{
-	Use:   "integrate",
-	Short: "(Re-)Integrate wwise into an existing project. Config file controls wwise version used.",
+	Use:   "wwise",
+	Short: "(Re-)Integrate wwise into an existing project. Config file controls the wwise version used.",
+	Long:  "(Re-)Integrate wwise into an existing project. Config file controls the wwise version used.\nNote that this command takes the path to a project directory, NOT the path to the folder containing the SatisfactoryModLoader folder.",
 	Run: func(cmd *cobra.Command, args []string) {
 		defer func() {
 			v := recover()

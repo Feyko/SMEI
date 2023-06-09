@@ -2,7 +2,6 @@ package cmd
 
 import (
 	configCmd "SMEI/cmd/config"
-	"SMEI/cmd/config/wwise/integrate"
 	"SMEI/cmd/install"
 	"SMEI/cmd/test"
 	"SMEI/lib/cmdhelp"
@@ -23,7 +22,7 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.AddCommand(configCmd.Cmd, install.Cmd, integrate.Cmd)
+	RootCmd.AddCommand(configCmd.Cmd, install.Cmd)
 	if test.Cmd != nil {
 		RootCmd.AddCommand(test.Cmd)
 	}
