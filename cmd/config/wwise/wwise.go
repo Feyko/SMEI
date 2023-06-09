@@ -9,7 +9,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "wwise",
-	Short: "Configure Wwise",
+	Short: "UNIMPLEMENTED Configure Wwise",
 	Run: func(cmd *cobra.Command, args []string) {
 		colors.Sequence.Println("This command is not yet implemented")
 		cmdhelp.PrintHelp(cmd)
