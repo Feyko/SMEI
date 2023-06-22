@@ -4,7 +4,7 @@ Satisfactory Modding Environment Installer. Automatically sets up the Satisfacto
 
 ## Usage
 
-As with the regular Satisfactory modding development environment, only Windows is supported.
+As with the regular Satisfactory modding development environment, **only Windows is supported**.
 
 1. Set up a github account linked as an Epic Games Developer Account by [following the modding documentation](https://docs.ficsit.app/satisfactory-modding/latest/Development/BeginnersGuide/dependencies.html#_link_your_github_as_an_epic_games_developer_account).
 2. Sign up for a [WWise account](https://www.audiokinetic.com/en/products/wwise/)
