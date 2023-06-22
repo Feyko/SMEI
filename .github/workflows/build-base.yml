@@ -12,8 +12,6 @@ jobs:
       GOOS: windows
       GOARCH: amd64
 
-    permissions: write-all
-
     steps:
       - uses: actions/checkout@v2
 
@@ -27,3 +25,11 @@ jobs:
 
       - name: Build
         run: go build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: version
+          path: |
+            SMEI.exe
+            README.md
