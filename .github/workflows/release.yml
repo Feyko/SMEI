@@ -3,8 +3,7 @@ name: "release"
 on:
   push:
     branches:
-      # - 'main'
-      - 'auto-prerelease' # TODO change this to main once working
+      - 'main'
 
 jobs:
   build:
