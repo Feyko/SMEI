@@ -7,18 +7,15 @@ on:
 
 jobs:
   build:
+    uses: ./.github/workflows/build-base.yml
+
+  upload:
     name: "Build"
     runs-on: "ubuntu-latest"
-
-    env:
-      GOOS: windows
-      GOARCH: amd64
 
     permissions: write-all
 
     steps:
-      - uses: ./.github/workflows/build-base.yml
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
