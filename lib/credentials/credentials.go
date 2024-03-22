@@ -1,10 +1,10 @@
 package credentials
 
 import (
-	"SMEI/config"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/secret"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/config"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/secret"
 	"log"
 	"os"
 

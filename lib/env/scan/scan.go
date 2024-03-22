@@ -1,9 +1,9 @@
 package scan
 
 import (
-	"SMEI/lib/env/project"
-	"SMEI/lib/env/ue"
-	"SMEI/lib/env/vs"
+	"github.com/satisfactorymodding/SMEI/lib/env/project"
+	"github.com/satisfactorymodding/SMEI/lib/env/ue"
+	"github.com/satisfactorymodding/SMEI/lib/env/vs"
 )
 
 type EnvInfo struct {

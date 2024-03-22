@@ -1,15 +1,15 @@
 package install
 
 import (
-	integrate "SMEI/cmd/install/wwise"
-	"SMEI/config"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/credentials"
-	"SMEI/lib/elevate"
-	"SMEI/lib/env/project"
-	"SMEI/lib/env/ue"
-	"SMEI/lib/env/vs"
 	"fmt"
+	integrate "github.com/satisfactorymodding/SMEI/cmd/install/wwise"
+	"github.com/satisfactorymodding/SMEI/config"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/credentials"
+	"github.com/satisfactorymodding/SMEI/lib/elevate"
+	"github.com/satisfactorymodding/SMEI/lib/env/project"
+	"github.com/satisfactorymodding/SMEI/lib/env/ue"
+	"github.com/satisfactorymodding/SMEI/lib/env/vs"
 	"log"
 	"os"
 	"os/signal"

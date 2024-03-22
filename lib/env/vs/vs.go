@@ -1,9 +1,9 @@
 package vs
 
 import (
-	"SMEI/lib/cfmt"
 	"encoding/json"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
 	"io"
 	"net/http"
 	"os"

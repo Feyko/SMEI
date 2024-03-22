@@ -1,11 +1,11 @@
 package ue
 
 import (
-	"SMEI/config"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/env/gh"
 	"context"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/config"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/env/gh"
 	"io/ioutil"
 	"net/http"
 	"os"

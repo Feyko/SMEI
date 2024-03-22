@@ -1,4 +1,4 @@
-module SMEI
+module github.com/satisfactorymodding/SMEI
 
 go 1.19
 

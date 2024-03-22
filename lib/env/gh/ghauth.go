@@ -1,10 +1,10 @@
 package gh
 
 import (
-	"SMEI/config"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/secret"
 	"context"
+	"github.com/satisfactorymodding/SMEI/config"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/secret"
 
 	"gg-scm.io/pkg/ghdevice"
 	"github.com/google/go-github/v42/github"

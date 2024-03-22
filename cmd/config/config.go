@@ -1,9 +1,9 @@
 package config
 
 import (
-	"SMEI/cmd/config/wwise"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/cmdhelp"
+	"github.com/satisfactorymodding/SMEI/cmd/config/wwise"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/cmdhelp"
 
 	"github.com/spf13/cobra"
 )

@@ -1,10 +1,10 @@
 package project
 
 import (
-	"SMEI/config"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/credentials"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/config"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/credentials"
 	"os"
 	"os/exec"
 	"path/filepath"

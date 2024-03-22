@@ -1,8 +1,8 @@
 package wwise
 
 import (
-	"SMEI/lib/cfmt"
-	"SMEI/lib/cmdhelp"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/cmdhelp"
 
 	"github.com/spf13/cobra"
 )

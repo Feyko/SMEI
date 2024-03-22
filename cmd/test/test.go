@@ -4,8 +4,8 @@
 package test
 
 import (
-	"SMEI/lib/elevate"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/lib/elevate"
 	"github.com/spf13/cobra"
 	"os"
 	"time"

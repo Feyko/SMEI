@@ -1,9 +1,9 @@
 package config
 
 import (
-	"SMEI/lib/crypt"
-	"SMEI/lib/secret"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/lib/crypt"
+	"github.com/satisfactorymodding/SMEI/lib/secret"
 	"log"
 	"os"
 	"path/filepath"

@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	configCmd "SMEI/cmd/config"
-	"SMEI/cmd/install"
-	"SMEI/cmd/test"
-	"SMEI/lib/cmdhelp"
+	configCmd "github.com/satisfactorymodding/SMEI/cmd/config"
+	"github.com/satisfactorymodding/SMEI/cmd/install"
+	"github.com/satisfactorymodding/SMEI/cmd/test"
+	"github.com/satisfactorymodding/SMEI/lib/cmdhelp"
 
 	"github.com/spf13/cobra"
 )

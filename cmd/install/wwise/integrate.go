@@ -1,11 +1,11 @@
 package integrate
 
 import (
-	"SMEI/config"
-	"SMEI/lib/cfmt"
-	"SMEI/lib/credentials"
-	"SMEI/lib/env/project"
 	"fmt"
+	"github.com/satisfactorymodding/SMEI/config"
+	"github.com/satisfactorymodding/SMEI/lib/cfmt"
+	"github.com/satisfactorymodding/SMEI/lib/credentials"
+	"github.com/satisfactorymodding/SMEI/lib/env/project"
 	"log"
 	"os"
 	"os/signal"

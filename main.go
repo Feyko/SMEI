@@ -1,6 +1,6 @@
 package main
 
-import "SMEI/cmd"
+import "github.com/satisfactorymodding/SMEI/cmd"
 
 func main() {
 	cmd.Execute()
